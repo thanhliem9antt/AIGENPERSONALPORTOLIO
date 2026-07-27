@@ -15,15 +15,32 @@ export const getMine = asyncHandler(async (req, res) => {
 });
 
 export const updateMine = asyncHandler(async (req, res) => {
-  const allowed = ['displayName', 'headline', 'bio', 'location', 'contactEmail', 'phone', 'website', 'availabilityStatus', 'skills', 'isPublished'];
-  const updates = Object.fromEntries(allowed.filter((key) => req.body[key] !== undefined).map((key) => [key, req.body[key]]));
+  const allowed = [
+    'displayName',
+    'headline',
+    'bio',
+    'location',
+    'contactEmail',
+    'phone',
+    'website',
+    'availabilityStatus',
+    'skills',
+    'isPublished',
+  ];
+  const updates = Object.fromEntries(
+    allowed.filter((key) => req.body[key] !== undefined).map((key) => [key, req.body[key]]),
+  );
   if (req.body.username) {
     const username = req.body.username.toLowerCase();
     if (!/^[a-z0-9_]+$/.test(username)) throw new ApiError(422, 'Username không hợp lệ');
     req.user.username = username;
     await req.user.save();
   }
-  const profile = await Profile.findOneAndUpdate({ userId: req.user.id }, updates, { new: true, runValidators: true, upsert: true });
+  const profile = await Profile.findOneAndUpdate({ userId: req.user.id }, updates, {
+    new: true,
+    runValidators: true,
+    upsert: true,
+  });
   res.json({ profile, user: req.user });
 });
 
@@ -41,7 +58,9 @@ async function replaceImage(req, field) {
 }
 
 export const uploadAvatar = asyncHandler(async (req, res) => res.json({ profile: await replaceImage(req, 'avatar') }));
-export const uploadBackground = asyncHandler(async (req, res) => res.json({ profile: await replaceImage(req, 'background') }));
+export const uploadBackground = asyncHandler(async (req, res) =>
+  res.json({ profile: await replaceImage(req, 'background') }),
+);
 
 function removeImage(field) {
   return asyncHandler(async (req, res) => {
@@ -67,14 +86,24 @@ export const getPublic = asyncHandler(async (req, res) => {
     PlayedGame.find({ userId: user.id, isVisible: true }).sort('order createdAt'),
   ]);
   if (!profile) throw new ApiError(404, 'Profile chưa được công khai');
-  res.json({ user: { fullName: user.fullName, username: user.username }, profile, socialLinks, projects, appearance, games });
+  res.json({
+    user: { fullName: user.fullName, username: user.username },
+    profile,
+    socialLinks,
+    projects,
+    appearance,
+    games,
+  });
 });
 
 export const addView = asyncHandler(async (req, res) => {
   const user = await User.findOne({ username: req.params.username.toLowerCase() });
   if (!user) throw new ApiError(404, 'Không tìm thấy profile');
   const rawIp = req.ip || req.socket.remoteAddress || 'unknown';
-  const visitorIpHash = crypto.createHmac('sha256', process.env.IP_HASH_SECRET || process.env.JWT_SECRET).update(rawIp).digest('hex');
+  const visitorIpHash = crypto
+    .createHmac('sha256', process.env.IP_HASH_SECRET || process.env.JWT_SECRET)
+    .update(rawIp)
+    .digest('hex');
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const viewed = await ProfileView.exists({ profileUserId: user.id, visitorIpHash, viewedAt: { $gte: since } });
   if (!viewed) {

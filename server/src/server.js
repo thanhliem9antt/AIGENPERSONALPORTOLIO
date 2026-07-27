@@ -18,10 +18,15 @@ const io = new Server(server, {
 
 io.use(async (socket, next) => {
   try {
-    const cookies = Object.fromEntries((socket.handshake.headers.cookie || '').split(';').filter(Boolean).map((item) => {
-      const [key, ...value] = item.trim().split('=');
-      return [key, decodeURIComponent(value.join('='))];
-    }));
+    const cookies = Object.fromEntries(
+      (socket.handshake.headers.cookie || '')
+        .split(';')
+        .filter(Boolean)
+        .map((item) => {
+          const [key, ...value] = item.trim().split('=');
+          return [key, decodeURIComponent(value.join('='))];
+        }),
+    );
     const token = socket.handshake.auth.token || cookies.profile_token;
     if (!token) return next(new Error('unauthorized'));
     const payload = jwt.verify(token, process.env.JWT_SECRET);
@@ -55,10 +60,15 @@ io.on('connection', (socket) => {
         return;
       }
       messageTimes.push(now);
-      const clean = String(content || '').trim().slice(0, 500);
+      const clean = String(content || '')
+        .trim()
+        .slice(0, 500);
       if (!clean) return;
       const message = await Message.create({ userId: socket.user.id, content: clean });
-      const payload = { ...message.toObject(), userId: { _id: socket.user.id, fullName: socket.user.fullName, username: socket.user.username } };
+      const payload = {
+        ...message.toObject(),
+        userId: { _id: socket.user.id, fullName: socket.user.fullName, username: socket.user.username },
+      };
       io.to('world').emit('world:message', payload);
       acknowledge?.({ ok: true });
     } catch {

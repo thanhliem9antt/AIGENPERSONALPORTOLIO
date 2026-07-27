@@ -3,14 +3,19 @@ import { gameCatalog } from '../data/gameCatalog.js';
 import { ApiError, asyncHandler } from '../utils/http.js';
 
 const editableFields = ['status', 'hoursPlayed', 'rank', 'note', 'isFavorite', 'isVisible', 'order'];
-const pick = (body, fields) => Object.fromEntries(fields.filter((key) => body[key] !== undefined).map((key) => [key, body[key]]));
+const pick = (body, fields) =>
+  Object.fromEntries(fields.filter((key) => body[key] !== undefined).map((key) => [key, body[key]]));
 
 export const getCatalog = asyncHandler(async (req, res) => {
-  const query = String(req.query.q || '').trim().toLowerCase();
+  const query = String(req.query.q || '')
+    .trim()
+    .toLowerCase();
   const platform = String(req.query.platform || '').trim();
-  const games = gameCatalog.filter((game) =>
-    (!query || `${game.title} ${game.genre}`.toLowerCase().includes(query))
-    && (!platform || game.platform === platform));
+  const games = gameCatalog.filter(
+    (game) =>
+      (!query || `${game.title} ${game.genre}`.toLowerCase().includes(query)) &&
+      (!platform || game.platform === platform),
+  );
   res.json({ games });
 });
 

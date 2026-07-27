@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { after, before, beforeEach, test } from 'node:test';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -8,6 +10,7 @@ process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'test-secret-that-is-at-least-thirty-two-characters';
 process.env.IP_HASH_SECRET = 'test-ip-secret-that-is-at-least-thirty-two-characters';
 process.env.CLIENT_URL = 'http://localhost:5173';
+process.env.MONGOMS_DOWNLOAD_DIR ||= path.join(tmpdir(), 'noir-mongodb-binaries');
 
 const { default: app } = await import('../src/app.js');
 
@@ -38,7 +41,7 @@ beforeEach(async () => {
 
 after(async () => {
   await mongoose.disconnect();
-  await mongo.stop();
+  await mongo?.stop();
 });
 
 test('register creates a complete account and authenticated session', async () => {
@@ -56,11 +59,7 @@ test('cookie mutations require an allowed Origin', async () => {
   const registered = await request(app).post('/api/auth/register').send(credentials('csrf')).expect(201);
   const cookie = authCookie(registered);
 
-  await request(app)
-    .put('/api/profile/me')
-    .set('Cookie', cookie)
-    .send({ headline: 'Blocked' })
-    .expect(403);
+  await request(app).put('/api/profile/me').set('Cookie', cookie).send({ headline: 'Blocked' }).expect(403);
 
   const allowed = await request(app)
     .put('/api/profile/me')

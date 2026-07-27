@@ -6,7 +6,9 @@ import { ApiError, asyncHandler } from '../utils/http.js';
 export const listFriends = asyncHandler(async (req, res) => {
   const friendships = await Friendship.find({
     $or: [{ requester: req.user.id }, { recipient: req.user.id }],
-  }).populate('requester recipient', 'fullName username').sort('-createdAt');
+  })
+    .populate('requester recipient', 'fullName username')
+    .sort('-createdAt');
   res.json({ friendships });
 });
 
@@ -43,6 +45,9 @@ export const removeFriend = asyncHandler(async (req, res) => {
 });
 
 export const getWorldMessages = asyncHandler(async (req, res) => {
-  const messages = await Message.find({ channel: 'world' }).populate('userId', 'fullName username').sort('-createdAt').limit(50);
+  const messages = await Message.find({ channel: 'world' })
+    .populate('userId', 'fullName username')
+    .sort('-createdAt')
+    .limit(50);
   res.json({ messages: messages.reverse() });
 });

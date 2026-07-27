@@ -1,7 +1,16 @@
 import { Router } from 'express';
 import { protect } from '../middleware/authMiddleware.js';
 import { imageUpload } from '../middleware/uploadMiddleware.js';
-import { addView, deleteAvatar, deleteBackground, getMine, getPublic, updateMine, uploadAvatar, uploadBackground } from '../controllers/profileController.js';
+import {
+  addView,
+  deleteAvatar,
+  deleteBackground,
+  getMine,
+  getPublic,
+  updateMine,
+  uploadAvatar,
+  uploadBackground,
+} from '../controllers/profileController.js';
 
 const router = Router();
 router.get('/me', protect, getMine);

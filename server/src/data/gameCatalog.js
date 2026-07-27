@@ -38,12 +38,48 @@ const steamGames = [
 }));
 
 const riotGames = [
-  ['league-of-legends', 'League of Legends', 'MOBA', 'https://www.leagueoflegends.com/', 'https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/565197caf987af4e4da307df6e2b235a28714736-837x469.jpg?accountingTag=LoL'],
-  ['valorant', 'VALORANT', 'Tactical FPS', 'https://playvalorant.com/', 'https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/cbf4460132cdfeb2a97fad5f9dd25ba0bc058f76-128x128.png?accountingTag=VAL'],
-  ['teamfight-tactics', 'Teamfight Tactics', 'Auto Battler', 'https://teamfighttactics.leagueoflegends.com/', 'https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/86196fe98c0b3fb64456d6fbfdf76d18bc26911c-660x428.png?accountingTag=TFT'],
-  ['wild-rift', 'League of Legends: Wild Rift', 'Mobile MOBA', 'https://wildrift.leagueoflegends.com/', 'https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/74f09240c5a0dfce67f3cf2e9611ee1a9cfb0b1e-736x500.png?accountingTag=WR'],
-  ['legends-of-runeterra', 'Legends of Runeterra', 'Card Game', 'https://playruneterra.com/', 'https://playruneterra.com/assets/ccc9b55ec5fec88d1a616e7dec4795282a3aba52/static/image/share-image.jpg'],
-  ['2xko', '2XKO', 'Fighting', 'https://2xko.riotgames.com/', 'https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/0d8da14d9cc0c69376e8fb42cc6344276bf937ad-1200x600.jpg?accountingTag=2XKO'],
+  [
+    'league-of-legends',
+    'League of Legends',
+    'MOBA',
+    'https://www.leagueoflegends.com/',
+    'https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/565197caf987af4e4da307df6e2b235a28714736-837x469.jpg?accountingTag=LoL',
+  ],
+  [
+    'valorant',
+    'VALORANT',
+    'Tactical FPS',
+    'https://playvalorant.com/',
+    'https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/cbf4460132cdfeb2a97fad5f9dd25ba0bc058f76-128x128.png?accountingTag=VAL',
+  ],
+  [
+    'teamfight-tactics',
+    'Teamfight Tactics',
+    'Auto Battler',
+    'https://teamfighttactics.leagueoflegends.com/',
+    'https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/86196fe98c0b3fb64456d6fbfdf76d18bc26911c-660x428.png?accountingTag=TFT',
+  ],
+  [
+    'wild-rift',
+    'League of Legends: Wild Rift',
+    'Mobile MOBA',
+    'https://wildrift.leagueoflegends.com/',
+    'https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/74f09240c5a0dfce67f3cf2e9611ee1a9cfb0b1e-736x500.png?accountingTag=WR',
+  ],
+  [
+    'legends-of-runeterra',
+    'Legends of Runeterra',
+    'Card Game',
+    'https://playruneterra.com/',
+    'https://playruneterra.com/assets/ccc9b55ec5fec88d1a616e7dec4795282a3aba52/static/image/share-image.jpg',
+  ],
+  [
+    '2xko',
+    '2XKO',
+    'Fighting',
+    'https://2xko.riotgames.com/',
+    'https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/0d8da14d9cc0c69376e8fb42cc6344276bf937ad-1200x600.jpg?accountingTag=2XKO',
+  ],
 ].map(([slug, title, genre, gameUrl, coverUrl]) => ({
   key: `riot-${slug}`,
   title,

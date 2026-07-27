@@ -1,5 +1,11 @@
 import { Router } from 'express';
-import { getWorldMessages, listFriends, removeFriend, requestFriend, respondFriend } from '../controllers/communityController.js';
+import {
+  getWorldMessages,
+  listFriends,
+  removeFriend,
+  requestFriend,
+  respondFriend,
+} from '../controllers/communityController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = Router();

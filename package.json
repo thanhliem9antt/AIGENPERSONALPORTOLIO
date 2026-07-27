@@ -1,0 +1,23 @@
+{
+  "name": "personal-profile",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "lint": "eslint client/src server/src server/test",
+    "format": "prettier --write \"{client,server}/**/*.{js,jsx,json,css,md}\" \"*.{json,md}\"",
+    "format:check": "prettier --list-different \"{client,server}/**/*.{js,jsx,json,css,md}\" \"*.{json,md}\"",
+    "test": "npm --prefix server test",
+    "build": "npm --prefix client run build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.0",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "globals": "^16.5.0",
+    "prettier": "^3.7.4"
+  }
+}

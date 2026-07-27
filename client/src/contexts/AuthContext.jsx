@@ -25,23 +25,29 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('auth:expired', expired);
   }, []);
 
-  const value = useMemo(() => ({
-    user, loading, setUser, refresh,
-    login: async (values) => {
-      const { data } = await api.post('/auth/login', values);
-      setUser(data.user);
-      return data.user;
-    },
-    register: async (values) => {
-      const { data } = await api.post('/auth/register', values);
-      setUser(data.user);
-      return data.user;
-    },
-    logout: async () => {
-      await api.post('/auth/logout');
-      setUser(null);
-    },
-  }), [user, loading]);
+  const value = useMemo(
+    () => ({
+      user,
+      loading,
+      setUser,
+      refresh,
+      login: async (values) => {
+        const { data } = await api.post('/auth/login', values);
+        setUser(data.user);
+        return data.user;
+      },
+      register: async (values) => {
+        const { data } = await api.post('/auth/register', values);
+        setUser(data.user);
+        return data.user;
+      },
+      logout: async () => {
+        await api.post('/auth/logout');
+        setUser(null);
+      },
+    }),
+    [user, loading],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

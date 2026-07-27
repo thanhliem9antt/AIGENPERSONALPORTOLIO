@@ -5,10 +5,113 @@ import { Button, ConfirmDialog, Field } from '../../components/common/UI';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 
-export default function SettingsPage(){
-  const {user,setUser,logout}=useAuth();const {notify}=useToast();const navigate=useNavigate();const [account,setAccount]=useState({fullName:user.fullName,email:user.email});const [passwords,setPasswords]=useState({currentPassword:'',newPassword:''});const [deletePassword,setDeletePassword]=useState('');const [confirming,setConfirming]=useState(false);
-  const update=async(e)=>{e.preventDefault();try{const {data}=await api.put('/auth/account',account);setUser(data.user);notify('Đã cập nhật tài khoản')}catch(err){notify(err.response?.data?.message||'Không thể cập nhật','error')}};
-  const change=async(e)=>{e.preventDefault();try{await api.put('/auth/change-password',passwords);setPasswords({currentPassword:'',newPassword:''});notify('Đổi mật khẩu thành công')}catch(err){notify(err.response?.data?.message||'Không thể đổi mật khẩu','error')}};
-  const remove=async()=>{try{await api.delete('/auth/account',{data:{password:deletePassword}});setUser(null);navigate('/');}catch(err){setConfirming(false);notify(err.response?.data?.message||'Không thể xóa tài khoản','error')}};
-  return <section className="max-w-3xl"><p className="eyebrow">Tài khoản</p><h1 className="mt-2 text-3xl font-semibold">Cài đặt</h1><form onSubmit={update} className="glass mt-8 grid gap-4 rounded-3xl p-6 sm:grid-cols-2"><h2 className="text-lg font-semibold sm:col-span-2">Thông tin tài khoản</h2><Field label="Họ và tên" value={account.fullName} onChange={(e)=>setAccount({...account,fullName:e.target.value})}/><Field label="Email" type="email" value={account.email} onChange={(e)=>setAccount({...account,email:e.target.value})}/><Button className="sm:col-span-2">Lưu thông tin</Button></form><form onSubmit={change} className="glass mt-5 grid gap-4 rounded-3xl p-6 sm:grid-cols-2"><h2 className="text-lg font-semibold sm:col-span-2">Đổi mật khẩu</h2><Field label="Mật khẩu hiện tại" type="password" value={passwords.currentPassword} onChange={(e)=>setPasswords({...passwords,currentPassword:e.target.value})}/><Field label="Mật khẩu mới" type="password" minLength="8" value={passwords.newPassword} onChange={(e)=>setPasswords({...passwords,newPassword:e.target.value})}/><Button className="sm:col-span-2">Đổi mật khẩu</Button></form><div className="mt-5 rounded-3xl border border-red-500/20 bg-red-500/5 p-6"><h2 className="text-lg font-semibold text-red-300">Vùng nguy hiểm</h2><p className="mt-2 text-sm text-zinc-500">Xóa tài khoản sẽ vô hiệu hóa profile của bạn.</p><Field label="Nhập mật khẩu để xác nhận" type="password" className="mt-4 max-w-sm" value={deletePassword} onChange={(e)=>setDeletePassword(e.target.value)}/><div className="mt-4 flex flex-wrap gap-2"><Button type="button" variant="danger" disabled={!deletePassword} onClick={()=>setConfirming(true)}>Xóa tài khoản</Button><Button type="button" variant="ghost" onClick={async()=>{await logout();navigate('/')}}>Đăng xuất</Button></div></div><ConfirmDialog open={confirming} title="Xóa tài khoản?" description="Profile sẽ không còn truy cập được. Hành động này cần được quản trị viên khôi phục." onClose={()=>setConfirming(false)} onConfirm={remove}/></section>;
+export default function SettingsPage() {
+  const { user, setUser, logout } = useAuth();
+  const { notify } = useToast();
+  const navigate = useNavigate();
+  const [account, setAccount] = useState({ fullName: user.fullName, email: user.email });
+  const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '' });
+  const [deletePassword, setDeletePassword] = useState('');
+  const [confirming, setConfirming] = useState(false);
+  const update = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = await api.put('/auth/account', account);
+      setUser(data.user);
+      notify('Đã cập nhật tài khoản');
+    } catch (err) {
+      notify(err.response?.data?.message || 'Không thể cập nhật', 'error');
+    }
+  };
+  const change = async (e) => {
+    e.preventDefault();
+    try {
+      await api.put('/auth/change-password', passwords);
+      setPasswords({ currentPassword: '', newPassword: '' });
+      notify('Đổi mật khẩu thành công');
+    } catch (err) {
+      notify(err.response?.data?.message || 'Không thể đổi mật khẩu', 'error');
+    }
+  };
+  const remove = async () => {
+    try {
+      await api.delete('/auth/account', { data: { password: deletePassword } });
+      setUser(null);
+      navigate('/');
+    } catch (err) {
+      setConfirming(false);
+      notify(err.response?.data?.message || 'Không thể xóa tài khoản', 'error');
+    }
+  };
+  return (
+    <section className="max-w-3xl">
+      <p className="eyebrow">Tài khoản</p>
+      <h1 className="mt-2 text-3xl font-semibold">Cài đặt</h1>
+      <form onSubmit={update} className="glass mt-8 grid gap-4 rounded-3xl p-6 sm:grid-cols-2">
+        <h2 className="text-lg font-semibold sm:col-span-2">Thông tin tài khoản</h2>
+        <Field
+          label="Họ và tên"
+          value={account.fullName}
+          onChange={(e) => setAccount({ ...account, fullName: e.target.value })}
+        />
+        <Field
+          label="Email"
+          type="email"
+          value={account.email}
+          onChange={(e) => setAccount({ ...account, email: e.target.value })}
+        />
+        <Button className="sm:col-span-2">Lưu thông tin</Button>
+      </form>
+      <form onSubmit={change} className="glass mt-5 grid gap-4 rounded-3xl p-6 sm:grid-cols-2">
+        <h2 className="text-lg font-semibold sm:col-span-2">Đổi mật khẩu</h2>
+        <Field
+          label="Mật khẩu hiện tại"
+          type="password"
+          value={passwords.currentPassword}
+          onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })}
+        />
+        <Field
+          label="Mật khẩu mới"
+          type="password"
+          minLength="8"
+          value={passwords.newPassword}
+          onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
+        />
+        <Button className="sm:col-span-2">Đổi mật khẩu</Button>
+      </form>
+      <div className="mt-5 rounded-3xl border border-red-500/20 bg-red-500/5 p-6">
+        <h2 className="text-lg font-semibold text-red-300">Vùng nguy hiểm</h2>
+        <p className="mt-2 text-sm text-zinc-500">Xóa tài khoản sẽ vô hiệu hóa profile của bạn.</p>
+        <Field
+          label="Nhập mật khẩu để xác nhận"
+          type="password"
+          className="mt-4 max-w-sm"
+          value={deletePassword}
+          onChange={(e) => setDeletePassword(e.target.value)}
+        />
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button type="button" variant="danger" disabled={!deletePassword} onClick={() => setConfirming(true)}>
+            Xóa tài khoản
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={async () => {
+              await logout();
+              navigate('/');
+            }}
+          >
+            Đăng xuất
+          </Button>
+        </div>
+      </div>
+      <ConfirmDialog
+        open={confirming}
+        title="Xóa tài khoản?"
+        description="Profile sẽ không còn truy cập được. Hành động này cần được quản trị viên khôi phục."
+        onClose={() => setConfirming(false)}
+        onConfirm={remove}
+      />
+    </section>
+  );
 }

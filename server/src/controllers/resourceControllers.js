@@ -11,7 +11,10 @@ const ownedCrud = (Model, transform = (value) => value) => ({
     res.status(201).json({ item });
   }),
   update: asyncHandler(async (req, res) => {
-    const item = await Model.findOneAndUpdate({ _id: req.params.id, userId: req.user.id }, transform(req.body), { new: true, runValidators: true });
+    const item = await Model.findOneAndUpdate({ _id: req.params.id, userId: req.user.id }, transform(req.body), {
+      new: true,
+      runValidators: true,
+    });
     if (!item) throw new ApiError(404, 'Không tìm thấy dữ liệu');
     res.json({ item });
   }),
@@ -28,11 +31,19 @@ const ownedCrud = (Model, transform = (value) => value) => ({
   }),
 });
 
-const pick = (body, fields) => Object.fromEntries(fields.filter((key) => body[key] !== undefined).map((key) => [key, body[key]]));
+const pick = (body, fields) =>
+  Object.fromEntries(fields.filter((key) => body[key] !== undefined).map((key) => [key, body[key]]));
 const iconByPlatform = {
-  GitHub: 'Github', Facebook: 'Facebook', LinkedIn: 'Linkedin', Instagram: 'Instagram',
-  TikTok: 'Music', YouTube: 'Youtube', Discord: 'MessageCircle', Telegram: 'Send',
-  Email: 'Mail', Website: 'Globe',
+  GitHub: 'Github',
+  Facebook: 'Facebook',
+  LinkedIn: 'Linkedin',
+  Instagram: 'Instagram',
+  TikTok: 'Music',
+  YouTube: 'Youtube',
+  Discord: 'MessageCircle',
+  Telegram: 'Send',
+  Email: 'Mail',
+  Website: 'Globe',
 };
 
 export const socialController = ownedCrud(SocialLink, (body) => {
@@ -41,7 +52,19 @@ export const socialController = ownedCrud(SocialLink, (body) => {
   return data;
 });
 export const projectController = ownedCrud(Project, (body) => {
-  const data = pick(body, ['title', 'slug', 'shortDescription', 'description', 'technologies', 'demoUrl', 'githubUrl', 'status', 'isFeatured', 'isVisible', 'order']);
+  const data = pick(body, [
+    'title',
+    'slug',
+    'shortDescription',
+    'description',
+    'technologies',
+    'demoUrl',
+    'githubUrl',
+    'status',
+    'isFeatured',
+    'isVisible',
+    'order',
+  ]);
   if (body.title && !body.slug) data.slug = slugify(body.title);
   return data;
 });
@@ -59,14 +82,39 @@ export const uploadThumbnail = asyncHandler(async (req, res) => {
 });
 
 export const getAppearance = asyncHandler(async (req, res) => {
-  const appearance = await Appearance.findOneAndUpdate({ userId: req.user.id }, {}, { new: true, upsert: true, setDefaultsOnInsert: true });
+  const appearance = await Appearance.findOneAndUpdate(
+    { userId: req.user.id },
+    {},
+    { new: true, upsert: true, setDefaultsOnInsert: true },
+  );
   res.json({ appearance });
 });
 
 export const updateAppearance = asyncHandler(async (req, res) => {
-  const allowed = ['primaryColor', 'backgroundType', 'backgroundValue', 'backgroundOpacity', 'blurStrength', 'cardStyle', 'borderRadius', 'fontFamily', 'enableAnimations', 'enableParticles', 'enableCursorEffect', 'musicUrl', 'musicVolume', 'showMusicControl'];
-  const data = Object.fromEntries(allowed.filter((key) => req.body[key] !== undefined).map((key) => [key, req.body[key]]));
-  const appearance = await Appearance.findOneAndUpdate({ userId: req.user.id }, data, { new: true, runValidators: true, upsert: true });
+  const allowed = [
+    'primaryColor',
+    'backgroundType',
+    'backgroundValue',
+    'backgroundOpacity',
+    'blurStrength',
+    'cardStyle',
+    'borderRadius',
+    'fontFamily',
+    'enableAnimations',
+    'enableParticles',
+    'enableCursorEffect',
+    'musicUrl',
+    'musicVolume',
+    'showMusicControl',
+  ];
+  const data = Object.fromEntries(
+    allowed.filter((key) => req.body[key] !== undefined).map((key) => [key, req.body[key]]),
+  );
+  const appearance = await Appearance.findOneAndUpdate({ userId: req.user.id }, data, {
+    new: true,
+    runValidators: true,
+    upsert: true,
+  });
   res.json({ appearance });
 });
 

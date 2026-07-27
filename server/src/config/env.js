@@ -10,7 +10,10 @@ function requireValue(name, { minLength = 1 } = {}) {
 
 function parseUrlList(name, fallback) {
   const raw = process.env[name]?.trim() || fallback;
-  const values = raw.split(',').map((value) => value.trim()).filter(Boolean);
+  const values = raw
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
   if (values.length === 0) throw new Error(`${name} must include at least one URL`);
   values.forEach((value) => {
     const url = new URL(value);

@@ -9,7 +9,9 @@ export function errorHandler(error, req, res, next) {
     return res.status(409).json({ message: `${field} đã tồn tại`, field });
   }
   if (error.name === 'ValidationError') {
-    return res.status(422).json({ message: 'Dữ liệu không hợp lệ', errors: Object.values(error.errors).map((item) => item.message) });
+    return res
+      .status(422)
+      .json({ message: 'Dữ liệu không hợp lệ', errors: Object.values(error.errors).map((item) => item.message) });
   }
   const status = error.status || 500;
   res.status(status).json({

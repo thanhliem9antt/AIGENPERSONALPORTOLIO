@@ -13,9 +13,12 @@ export default function useResource(url, key = 'items') {
       setData(response.data[key]);
     } catch (requestError) {
       setError(requestError);
+    } finally {
+      setLoading(false);
     }
-    finally { setLoading(false); }
   }, [url, key]);
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
   return { data, setData, loading, error, reload: load };
 }

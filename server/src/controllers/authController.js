@@ -13,7 +13,11 @@ export const register = asyncHandler(async (req, res) => {
   const { fullName, username, email, password } = req.body;
   const normalizedUsername = username.toLowerCase();
   const exists = await User.findOne({ $or: [{ username: normalizedUsername }, { email: email.toLowerCase() }] });
-  if (exists) throw new ApiError(409, exists.username === normalizedUsername ? 'Username đã được sử dụng' : 'Email đã được sử dụng');
+  if (exists)
+    throw new ApiError(
+      409,
+      exists.username === normalizedUsername ? 'Username đã được sử dụng' : 'Email đã được sử dụng',
+    );
   const user = await User.create({ fullName, username: normalizedUsername, email, password });
   try {
     await Promise.all([
@@ -33,8 +37,11 @@ export const register = asyncHandler(async (req, res) => {
 
 export const login = asyncHandler(async (req, res) => {
   const identity = req.body.identity.toLowerCase();
-  const user = await User.findOne({ $or: [{ email: identity }, { username: identity }] }).select('+password +tokenVersion');
-  if (!user || !(await user.comparePassword(req.body.password))) throw new ApiError(401, 'Thông tin đăng nhập không chính xác');
+  const user = await User.findOne({ $or: [{ email: identity }, { username: identity }] }).select(
+    '+password +tokenVersion',
+  );
+  if (!user || !(await user.comparePassword(req.body.password)))
+    throw new ApiError(401, 'Thông tin đăng nhập không chính xác');
   sendSession(res, user, req.body.remember !== false);
 });
 
@@ -57,7 +64,9 @@ export const changePassword = asyncHandler(async (req, res) => {
 
 export const updateAccount = asyncHandler(async (req, res) => {
   const allowed = ['fullName', 'email'];
-  allowed.forEach((key) => { if (req.body[key] !== undefined) req.user[key] = req.body[key]; });
+  allowed.forEach((key) => {
+    if (req.body[key] !== undefined) req.user[key] = req.body[key];
+  });
   await req.user.save();
   res.json({ user: req.user });
 });

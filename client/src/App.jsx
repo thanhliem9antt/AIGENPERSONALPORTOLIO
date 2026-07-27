@@ -15,4 +15,28 @@ import SettingsPage from './pages/dashboard/SettingsPage';
 import CommunityPage from './pages/dashboard/CommunityPage';
 import GamesPage from './pages/dashboard/GamesPage';
 
-export default function App(){return <Routes><Route element={<MainLayout/>}><Route index element={<HomePage/>}/><Route path="/login" element={<LoginPage/>}/><Route path="/register" element={<RegisterPage/>}/></Route><Route path="/:profileHandle" element={<PublicProfilePage/>}/><Route element={<ProtectedRoute/>}><Route path="/dashboard" element={<DashboardLayout/>}><Route index element={<OverviewPage/>}/><Route path="profile" element={<ProfileEditPage/>}/><Route path="social-links" element={<SocialLinksPage/>}/><Route path="projects" element={<ProjectsPage/>}/><Route path="games" element={<GamesPage/>}/><Route path="appearance" element={<AppearancePage/>}/><Route path="community" element={<CommunityPage/>}/><Route path="settings" element={<SettingsPage/>}/></Route></Route><Route path="*" element={<NotFoundPage/>}/></Routes>}
+export default function App() {
+  return (
+    <Routes>
+      <Route element={<MainLayout />}>
+        <Route index element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Route>
+      <Route path="/:profileHandle" element={<PublicProfilePage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<OverviewPage />} />
+          <Route path="profile" element={<ProfileEditPage />} />
+          <Route path="social-links" element={<SocialLinksPage />} />
+          <Route path="projects" element={<ProjectsPage />} />
+          <Route path="games" element={<GamesPage />} />
+          <Route path="appearance" element={<AppearancePage />} />
+          <Route path="community" element={<CommunityPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+        </Route>
+      </Route>
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
+}
