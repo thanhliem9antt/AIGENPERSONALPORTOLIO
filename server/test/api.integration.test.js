@@ -236,3 +236,31 @@ test('admins can grant multiple roles and titles while regular users are denied'
     .send({ roles: ['user'], titles: [] })
     .expect(422);
 });
+
+test('appearance saves advanced background and cursor customization', async () => {
+  const registered = await request(app).post('/api/auth/register').send(credentials('appearance')).expect(201);
+  const cookie = authCookie(registered);
+  const response = await request(app)
+    .put('/api/appearance')
+    .set('Cookie', cookie)
+    .set('Origin', origin)
+    .send({
+      backgroundType: 'image',
+      backgroundValue: 'https://images.example.com/background.webp',
+      backgroundOpacity: 0.8,
+      backgroundBlur: 12,
+      backgroundPosition: 'top',
+      overlayColor: '#111827',
+      cursorStyle: 'ring',
+      cursorColor: '#22d3ee',
+      cursorSize: 28,
+    })
+    .expect(200);
+
+  assert.equal(response.body.appearance.backgroundBlur, 12);
+  assert.equal(response.body.appearance.backgroundPosition, 'top');
+  assert.equal(response.body.appearance.overlayColor, '#111827');
+  assert.equal(response.body.appearance.cursorStyle, 'ring');
+  assert.equal(response.body.appearance.cursorColor, '#22d3ee');
+  assert.equal(response.body.appearance.cursorSize, 28);
+});

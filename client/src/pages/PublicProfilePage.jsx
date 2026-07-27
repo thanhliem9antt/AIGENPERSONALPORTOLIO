@@ -107,9 +107,7 @@ export default function PublicProfilePage() {
         ? appearance.backgroundValue
         : data.profile.backgroundUrl;
       if (!customBackground) return { background: '#08090c' };
-      return {
-        backgroundImage: `linear-gradient(rgba(8,9,12,${1 - (appearance.backgroundOpacity ?? 0.7)}),rgba(8,9,12,${1 - (appearance.backgroundOpacity ?? 0.7)})),url(${customBackground})`,
-      };
+      return { backgroundImage: `url(${customBackground})` };
     }
     if (appearance.backgroundType === 'video') return { background: '#08090c' };
     if (appearance.backgroundType === 'solid') return { background: appearance.backgroundValue };
@@ -139,6 +137,13 @@ export default function PublicProfilePage() {
       ? appearance.backgroundValue
       : null;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const effectiveCursor =
+    appearance.cursorStyle === 'default' && appearance.enableCursorEffect
+      ? 'glow'
+      : appearance.cursorStyle || (appearance.enableCursorEffect ? 'glow' : 'default');
+  const customCursor = ['glow', 'dot', 'ring'].includes(effectiveCursor) && !reduceMotion;
+  const cursorSize = appearance.cursorSize || 18;
+  const cursorColor = appearance.cursorColor || appearance.primaryColor || '#a78bfa';
   const animation =
     appearance.enableAnimations && !reduceMotion
       ? { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.55 } }
@@ -146,10 +151,15 @@ export default function PublicProfilePage() {
 
   return (
     <main
-      className="relative min-h-screen bg-cover bg-fixed bg-center px-4 py-12 sm:px-6"
-      style={{ ...background, fontFamily: appearance.fontFamily, '--cursor-x': '50vw', '--cursor-y': '50vh' }}
+      className="relative min-h-screen overflow-hidden bg-[#08090c] px-4 py-12 sm:px-6"
+      style={{
+        fontFamily: appearance.fontFamily,
+        '--cursor-x': '50vw',
+        '--cursor-y': '50vh',
+        cursor: effectiveCursor === 'crosshair' ? 'crosshair' : customCursor ? 'none' : undefined,
+      }}
       onPointerMove={
-        appearance.enableCursorEffect && !reduceMotion
+        customCursor
           ? (event) => {
               event.currentTarget.style.setProperty('--cursor-x', `${event.clientX}px`);
               event.currentTarget.style.setProperty('--cursor-y', `${event.clientY}px`);
@@ -157,20 +167,43 @@ export default function PublicProfilePage() {
           : undefined
       }
     >
-      {videoSource && (
+      {videoSource ? (
         <video
-          className="fixed inset-0 h-full w-full object-cover"
+          className="fixed inset-0 z-0 h-full w-full scale-105 object-cover"
           src={videoSource}
           autoPlay
           muted
           loop
           playsInline
+          style={{
+            filter: `blur(${appearance.backgroundBlur || 0}px)`,
+            opacity: appearance.backgroundOpacity ?? 0.7,
+            objectPosition: appearance.backgroundPosition || 'center',
+          }}
+          aria-hidden="true"
+        />
+      ) : (
+        <div
+          className="fixed inset-0 z-0 scale-105 bg-cover"
+          style={{
+            ...background,
+            backgroundPosition: appearance.backgroundPosition || 'center',
+            filter: `blur(${appearance.backgroundBlur || 0}px)`,
+            opacity: appearance.backgroundOpacity ?? 0.7,
+          }}
           aria-hidden="true"
         />
       )}
-      <div className="absolute inset-0 bg-black/30" />
+      <div
+        className="fixed inset-0 z-[1]"
+        style={{
+          background: appearance.overlayColor || '#08090c',
+          opacity: 1 - (appearance.backgroundOpacity ?? 0.7),
+        }}
+        aria-hidden="true"
+      />
       {appearance.enableParticles && !reduceMotion && (
-        <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
+        <div className="pointer-events-none fixed inset-0 z-[2] overflow-hidden" aria-hidden="true">
           {Array.from({ length: 18 }, (_, index) => (
             <span
               key={index}
@@ -184,20 +217,30 @@ export default function PublicProfilePage() {
           ))}
         </div>
       )}
-      {appearance.enableCursorEffect && !reduceMotion && (
+      {customCursor && (
         <div
-          className="pointer-events-none fixed z-10 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-40 blur-3xl"
+          className={`pointer-events-none fixed z-30 -translate-x-1/2 -translate-y-1/2 rounded-full ${
+            effectiveCursor === 'glow' ? 'opacity-40 blur-2xl' : effectiveCursor === 'ring' ? 'border-2' : ''
+          }`}
           style={{
             left: 'var(--cursor-x)',
             top: 'var(--cursor-y)',
-            background: `radial-gradient(circle, ${appearance.primaryColor || '#8b5cf6'} 0%, transparent 70%)`,
+            width: effectiveCursor === 'glow' ? cursorSize * 8 : cursorSize,
+            height: effectiveCursor === 'glow' ? cursorSize * 8 : cursorSize,
+            background:
+              effectiveCursor === 'glow'
+                ? `radial-gradient(circle, ${cursorColor} 0%, transparent 70%)`
+                : effectiveCursor === 'ring'
+                  ? 'transparent'
+                  : cursorColor,
+            borderColor: cursorColor,
           }}
           aria-hidden="true"
         />
       )}
       <motion.section
         {...animation}
-        className={`relative mx-auto w-full max-w-3xl p-5 sm:p-8 ${
+        className={`relative z-10 mx-auto w-full max-w-3xl p-5 sm:p-8 ${
           appearance.cardStyle === 'solid'
             ? 'border border-white/10 bg-[#111218] shadow-2xl'
             : appearance.cardStyle === 'minimal'
