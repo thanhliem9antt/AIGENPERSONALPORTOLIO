@@ -14,6 +14,7 @@ process.env.MONGOMS_DOWNLOAD_DIR ||= path.join(tmpdir(), 'noir-mongodb-binaries'
 
 const { default: app } = await import('../src/app.js');
 const { default: User } = await import('../src/models/User.js');
+const { default: Friendship } = await import('../src/models/Friendship.js');
 
 let mongo;
 const origin = 'http://localhost:5173';
@@ -117,4 +118,65 @@ test('registration records a valid referrer and increments their referral count'
   const referred = await User.findOne({ username: 'user_referred' }).select('+referredBy');
   assert.equal(inviter.referralCount, 1);
   assert.equal(referred.referredBy.toString(), inviter.id);
+});
+
+test('watch rooms support joining, friend invitations and personal history', async () => {
+  const hostResponse = await request(app).post('/api/auth/register').send(credentials('watch_host')).expect(201);
+  const guestResponse = await request(app).post('/api/auth/register').send(credentials('watch_guest')).expect(201);
+  const hostCookie = authCookie(hostResponse);
+  const guestCookie = authCookie(guestResponse);
+
+  const created = await request(app)
+    .post('/api/watch/rooms')
+    .set('Cookie', hostCookie)
+    .set('Origin', origin)
+    .send({})
+    .expect(201);
+  assert.match(created.body.room.roomId, /^[A-HJ-NP-Z2-9]{8}$/);
+
+  const joined = await request(app)
+    .post(`/api/watch/rooms/${created.body.room.roomId}/join`)
+    .set('Cookie', guestCookie)
+    .set('Origin', origin)
+    .expect(200);
+  assert.equal(joined.body.room.hostId.username, 'user_watch_host');
+
+  await request(app)
+    .post(`/api/watch/rooms/${created.body.room.roomId}/invites`)
+    .set('Cookie', hostCookie)
+    .set('Origin', origin)
+    .send({ username: 'user_watch_guest' })
+    .expect(403);
+
+  await Friendship.create({
+    requester: hostResponse.body.user._id,
+    recipient: guestResponse.body.user._id,
+    status: 'accepted',
+  });
+  await request(app)
+    .post(`/api/watch/rooms/${created.body.room.roomId}/invites`)
+    .set('Cookie', hostCookie)
+    .set('Origin', origin)
+    .send({ username: 'user_watch_guest' })
+    .expect(201);
+
+  const invites = await request(app).get('/api/watch/invites').set('Cookie', guestCookie).expect(200);
+  assert.equal(invites.body.invites.length, 1);
+  assert.equal(invites.body.invites[0].roomId, created.body.room.roomId);
+
+  await request(app)
+    .post('/api/watch/history')
+    .set('Cookie', hostCookie)
+    .set('Origin', origin)
+    .send({
+      videoId: 'dQw4w9WgXcQ',
+      title: 'Test video',
+      thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg',
+      channelTitle: 'Test channel',
+    })
+    .expect(201);
+  const suggestions = await request(app).get('/api/watch/search').set('Cookie', hostCookie).expect(200);
+  assert.equal(suggestions.body.source, 'history');
+  assert.equal(suggestions.body.videos[0].videoId, 'dQw4w9WgXcQ');
+  assert.equal(suggestions.body.videos[0].watchCount, 1);
 });

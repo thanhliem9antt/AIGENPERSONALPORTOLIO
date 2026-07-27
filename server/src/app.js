@@ -8,6 +8,7 @@ import profileRoutes from './routes/profileRoutes.js';
 import { appearanceRouter, projectRouter, socialRouter } from './routes/resourceRoutes.js';
 import communityRoutes from './routes/communityRoutes.js';
 import gameRoutes from './routes/gameRoutes.js';
+import watchRoutes from './routes/watchRoutes.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 import { getClientOrigins } from './config/env.js';
 import { verifyCookieOrigin } from './middleware/csrfMiddleware.js';
@@ -38,6 +39,7 @@ app.use('/api/projects', projectRouter);
 app.use('/api/appearance', appearanceRouter);
 app.use('/api/community', communityRoutes);
 app.use('/api/games', gameRoutes);
+app.use('/api/watch', watchRoutes);
 app.use(notFound);
 app.use(errorHandler);
 

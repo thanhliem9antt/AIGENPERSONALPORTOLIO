@@ -10,6 +10,7 @@ import {
   Menu,
   MessageCircle,
   Settings,
+  Tv2,
   UserRound,
   X,
 } from 'lucide-react';
@@ -23,6 +24,7 @@ const links = [
   ['Game đã chơi', '/dashboard/games', Gamepad2],
   ['Giao diện', '/dashboard/appearance', Brush],
   ['Bạn bè & chat', '/dashboard/community', MessageCircle],
+  ['Watch Together', '/dashboard/watch-together', Tv2],
   ['Cài đặt tài khoản', '/dashboard/settings', Settings],
 ];
 

@@ -18,6 +18,7 @@ const AppearancePage = lazy(() => import('./pages/dashboard/AppearancePage'));
 const SettingsPage = lazy(() => import('./pages/dashboard/SettingsPage'));
 const CommunityPage = lazy(() => import('./pages/dashboard/CommunityPage'));
 const GamesPage = lazy(() => import('./pages/dashboard/GamesPage'));
+const WatchTogetherPage = lazy(() => import('./pages/dashboard/WatchTogetherPage'));
 
 export default function App() {
   return (
@@ -38,6 +39,7 @@ export default function App() {
             <Route path="games" element={<GamesPage />} />
             <Route path="appearance" element={<AppearancePage />} />
             <Route path="community" element={<CommunityPage />} />
+            <Route path="watch-together" element={<WatchTogetherPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Route>

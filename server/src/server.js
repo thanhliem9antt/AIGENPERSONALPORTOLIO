@@ -6,6 +6,7 @@ import app from './app.js';
 import { connectDatabase } from './config/database.js';
 import User from './models/User.js';
 import Message from './models/Message.js';
+import WatchRoom from './models/WatchRoom.js';
 import { assertEnvironment, getClientOrigins } from './config/env.js';
 
 assertEnvironment();
@@ -43,10 +44,29 @@ io.use(async (socket, next) => {
 io.on('connection', (socket) => {
   const userId = socket.user.id;
   activeConnections.set(userId, (activeConnections.get(userId) || 0) + 1);
+  const emitWatchParticipants = (roomId) => {
+    if (!roomId) return;
+    const roomName = `watch:${roomId}`;
+    const memberIds = io.sockets.adapter.rooms.get(roomName) || new Set();
+    const participants = [...memberIds]
+      .map((id) => io.sockets.sockets.get(id))
+      .filter(Boolean)
+      .map((member) => ({
+        id: member.id,
+        userId: member.user.id,
+        username: member.user.username,
+        fullName: member.user.fullName,
+        voiceReady: Boolean(member.watchVoiceReady),
+        muted: Boolean(member.watchMuted),
+      }));
+    io.to(roomName).emit('watch:participants', participants);
+  };
+
   socket.on('disconnect', () => {
     const remaining = (activeConnections.get(userId) || 1) - 1;
     if (remaining > 0) activeConnections.set(userId, remaining);
     else activeConnections.delete(userId);
+    emitWatchParticipants(socket.watchRoomId);
   });
 
   socket.join('world');
@@ -73,6 +93,89 @@ io.on('connection', (socket) => {
       acknowledge?.({ ok: true });
     } catch {
       acknowledge?.({ ok: false });
+    }
+  });
+
+  socket.on('watch:join', async (rawRoomId, acknowledge) => {
+    try {
+      const roomId = String(rawRoomId || '')
+        .trim()
+        .toUpperCase();
+      if (!/^[A-HJ-NP-Z2-9]{8}$/.test(roomId)) throw new Error('invalid_room');
+      const room = await WatchRoom.findOne({ roomId, expiresAt: { $gt: new Date() } });
+      if (!room) throw new Error('room_not_found');
+
+      if (socket.watchRoomId) socket.leave(`watch:${socket.watchRoomId}`);
+      socket.watchRoomId = roomId;
+      socket.watchHostId = room.hostId.toString();
+      socket.watchVoiceReady = false;
+      socket.watchMuted = false;
+      socket.join(`watch:${roomId}`);
+      emitWatchParticipants(roomId);
+      acknowledge?.({ ok: true });
+    } catch (error) {
+      acknowledge?.({ ok: false, error: error.message });
+    }
+  });
+
+  socket.on('watch:sync', async (payload, acknowledge) => {
+    try {
+      if (!socket.watchRoomId || socket.watchHostId !== socket.user.id) throw new Error('forbidden');
+      const videoId = String(payload?.videoId || '').trim();
+      const currentTime = Number(payload?.currentTime);
+      if (!/^[a-zA-Z0-9_-]{11}$/.test(videoId) || !Number.isFinite(currentTime) || currentTime < 0) {
+        throw new Error('invalid_state');
+      }
+      const state = {
+        videoId,
+        videoTitle: String(payload?.title || '')
+          .trim()
+          .slice(0, 200),
+        videoThumbnail: String(payload?.thumbnail || '')
+          .trim()
+          .slice(0, 1000),
+        currentTime: Math.min(currentTime, 86_400),
+        isPlaying: Boolean(payload?.isPlaying),
+        lastSyncedAt: new Date(),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      };
+      const updated = await WatchRoom.updateOne(
+        { roomId: socket.watchRoomId, hostId: socket.user.id, expiresAt: { $gt: new Date() } },
+        state,
+      );
+      if (!updated.matchedCount) throw new Error('room_not_found');
+      socket.to(`watch:${socket.watchRoomId}`).emit('watch:sync', state);
+      acknowledge?.({ ok: true });
+    } catch (error) {
+      acknowledge?.({ ok: false, error: error.message });
+    }
+  });
+
+  socket.on('watch:voice-state', (payload) => {
+    if (!socket.watchRoomId) return;
+    socket.watchVoiceReady = Boolean(payload?.enabled);
+    socket.watchMuted = Boolean(payload?.muted);
+    emitWatchParticipants(socket.watchRoomId);
+  });
+
+  socket.on('watch:signal', (payload, acknowledge) => {
+    try {
+      const target = io.sockets.sockets.get(String(payload?.targetId || ''));
+      const signal = payload?.signal;
+      if (
+        !socket.watchRoomId ||
+        !target ||
+        target.watchRoomId !== socket.watchRoomId ||
+        !signal ||
+        !['offer', 'answer', 'ice'].includes(signal.type) ||
+        JSON.stringify(signal).length > 20_000
+      ) {
+        throw new Error('invalid_signal');
+      }
+      target.emit('watch:signal', { senderId: socket.id, signal });
+      acknowledge?.({ ok: true });
+    } catch (error) {
+      acknowledge?.({ ok: false, error: error.message });
     }
   });
 });
