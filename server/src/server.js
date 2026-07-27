@@ -11,6 +11,7 @@ import { assertEnvironment, getClientOrigins } from './config/env.js';
 assertEnvironment();
 const port = process.env.PORT || 5000;
 const server = http.createServer(app);
+const activeConnections = new Map();
 const io = new Server(server, {
   cors: { origin: getClientOrigins(), credentials: true },
 });
@@ -24,8 +25,9 @@ io.use(async (socket, next) => {
     const token = socket.handshake.auth.token || cookies.profile_token;
     if (!token) return next(new Error('unauthorized'));
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(payload.sub);
-    if (!user?.isActive) return next(new Error('unauthorized'));
+    const user = await User.findById(payload.sub).select('+tokenVersion');
+    if (!user?.isActive || (payload.ver || 0) !== user.tokenVersion) return next(new Error('unauthorized'));
+    if ((activeConnections.get(user.id) || 0) >= 5) return next(new Error('too_many_connections'));
     socket.user = user;
     next();
   } catch {
@@ -34,9 +36,25 @@ io.use(async (socket, next) => {
 });
 
 io.on('connection', (socket) => {
+  const userId = socket.user.id;
+  activeConnections.set(userId, (activeConnections.get(userId) || 0) + 1);
+  socket.on('disconnect', () => {
+    const remaining = (activeConnections.get(userId) || 1) - 1;
+    if (remaining > 0) activeConnections.set(userId, remaining);
+    else activeConnections.delete(userId);
+  });
+
   socket.join('world');
+  const messageTimes = [];
   socket.on('world:message', async (content, acknowledge) => {
     try {
+      const now = Date.now();
+      while (messageTimes.length && messageTimes[0] <= now - 10_000) messageTimes.shift();
+      if (messageTimes.length >= 8) {
+        acknowledge?.({ ok: false, error: 'rate_limited' });
+        return;
+      }
+      messageTimes.push(now);
       const clean = String(content || '').trim().slice(0, 500);
       if (!clean) return;
       const message = await Message.create({ userId: socket.user.id, content: clean });

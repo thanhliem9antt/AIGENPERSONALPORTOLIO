@@ -20,7 +20,7 @@ router.post('/login', authLimiter, [
   passwordRule,
 ], validate, login);
 router.get('/me', protect, me);
-router.post('/logout', logout);
+router.post('/logout', protect, logout);
 router.put('/account', protect, [
   body('fullName').optional().trim().isLength({ min: 2, max: 80 }),
   body('email').optional().isEmail().normalizeEmail(),

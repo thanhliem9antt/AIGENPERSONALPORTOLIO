@@ -8,8 +8,8 @@ export const protect = asyncHandler(async (req, res, next) => {
   if (!token) throw new ApiError(401, 'Vui lòng đăng nhập');
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(payload.sub);
-    if (!user?.isActive) throw new Error();
+    const user = await User.findById(payload.sub).select('+tokenVersion');
+    if (!user?.isActive || (payload.ver || 0) !== user.tokenVersion) throw new Error();
     req.user = user;
     next();
   } catch {

@@ -5,7 +5,7 @@ import { ApiError, asyncHandler } from '../utils/http.js';
 import { setAuthCookie, signToken } from '../utils/token.js';
 
 const sendSession = (res, user, remember = true, status = 200) => {
-  setAuthCookie(res, signToken(user.id), remember);
+  setAuthCookie(res, signToken(user), remember);
   res.status(status).json({ user });
 };
 
@@ -15,16 +15,25 @@ export const register = asyncHandler(async (req, res) => {
   const exists = await User.findOne({ $or: [{ username: normalizedUsername }, { email: email.toLowerCase() }] });
   if (exists) throw new ApiError(409, exists.username === normalizedUsername ? 'Username đã được sử dụng' : 'Email đã được sử dụng');
   const user = await User.create({ fullName, username: normalizedUsername, email, password });
-  await Promise.all([
-    Profile.create({ userId: user.id, displayName: fullName }),
-    Appearance.create({ userId: user.id }),
-  ]);
+  try {
+    await Promise.all([
+      Profile.create({ userId: user.id, displayName: fullName }),
+      Appearance.create({ userId: user.id }),
+    ]);
+  } catch (error) {
+    await Promise.allSettled([
+      Profile.deleteMany({ userId: user.id }),
+      Appearance.deleteMany({ userId: user.id }),
+      User.deleteOne({ _id: user.id }),
+    ]);
+    throw error;
+  }
   sendSession(res, user, true, 201);
 });
 
 export const login = asyncHandler(async (req, res) => {
   const identity = req.body.identity.toLowerCase();
-  const user = await User.findOne({ $or: [{ email: identity }, { username: identity }] }).select('+password');
+  const user = await User.findOne({ $or: [{ email: identity }, { username: identity }] }).select('+password +tokenVersion');
   if (!user || !(await user.comparePassword(req.body.password))) throw new ApiError(401, 'Thông tin đăng nhập không chính xác');
   sendSession(res, user, req.body.remember !== false);
 });
@@ -37,10 +46,12 @@ export const logout = (req, res) => {
 };
 
 export const changePassword = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user.id).select('+password');
+  const user = await User.findById(req.user.id).select('+password +tokenVersion');
   if (!(await user.comparePassword(req.body.currentPassword))) throw new ApiError(400, 'Mật khẩu hiện tại không đúng');
   user.password = req.body.newPassword;
+  user.tokenVersion += 1;
   await user.save();
+  setAuthCookie(res, signToken(user), true);
   res.json({ message: 'Đổi mật khẩu thành công' });
 });
 
