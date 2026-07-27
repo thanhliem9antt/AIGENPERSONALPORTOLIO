@@ -274,6 +274,7 @@ export default function WatchTogetherPage() {
       playerRef.current?.destroy?.();
       const currentRoom = roomRef.current;
       playerRef.current = new YT.Player(playerElementRef.current, {
+        host: 'https://www.youtube-nocookie.com',
         videoId: currentRoom?.videoId || undefined,
         playerVars: { playsinline: 1, rel: 0, controls: isHost ? 1 : 0 },
         events: {
