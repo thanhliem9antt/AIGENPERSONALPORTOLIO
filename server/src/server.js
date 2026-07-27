@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import http from 'http';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import { Server } from 'socket.io';
 import app from './app.js';
 import { connectDatabase } from './config/database.js';
@@ -180,9 +181,43 @@ io.on('connection', (socket) => {
   });
 });
 
+function listen() {
+  return new Promise((resolve, reject) => {
+    const onError = (error) => {
+      server.off('listening', onListening);
+      reject(error);
+    };
+    const onListening = () => {
+      server.off('error', onError);
+      resolve();
+    };
+    server.once('error', onError);
+    server.once('listening', onListening);
+    server.listen(port);
+  });
+}
+
 connectDatabase()
-  .then(() => server.listen(port, () => console.log(`API running at http://localhost:${port}`)))
-  .catch((error) => {
-    console.error(error.message);
-    process.exit(1);
+  .then(listen)
+  .then(() => console.log(`API running at http://localhost:${port}`))
+  .catch(async (error) => {
+    if (error.code === 'EADDRINUSE') {
+      try {
+        const response = await fetch(`http://127.0.0.1:${port}/api/health`, { signal: AbortSignal.timeout(2000) });
+        if (response.ok) {
+          console.log(`API is already running at http://localhost:${port}. Reuse the existing server.`);
+          await mongoose.disconnect();
+          return;
+        }
+      } catch {
+        // The port belongs to another process, so show the actionable message below.
+      }
+      console.error(
+        `Port ${port} is already in use. Stop the process using it or set a different PORT in server/.env.`,
+      );
+    } else {
+      console.error(error.message);
+    }
+    await mongoose.disconnect().catch(() => {});
+    process.exitCode = 1;
   });
