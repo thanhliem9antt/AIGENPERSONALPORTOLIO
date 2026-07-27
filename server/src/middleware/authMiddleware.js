@@ -16,3 +16,9 @@ export const protect = asyncHandler(async (req, res, next) => {
     throw new ApiError(401, 'Phiên đăng nhập đã hết hạn');
   }
 });
+
+export function requireAdmin(req, res, next) {
+  const isAdmin = req.user?.role === 'admin' || req.user?.roles?.includes('admin');
+  if (!isAdmin) return next(new ApiError(403, 'Bạn không có quyền quản trị'));
+  next();
+}

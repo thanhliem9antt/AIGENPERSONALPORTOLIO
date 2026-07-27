@@ -10,6 +10,7 @@ import {
   Menu,
   MessageCircle,
   Settings,
+  ShieldCheck,
   Tv2,
   UserRound,
   X,
@@ -31,6 +32,10 @@ const links = [
 export default function DashboardLayout() {
   const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
+  const isAdmin = user?.role === 'admin' || user?.roles?.includes('admin');
+  const visibleLinks = isAdmin
+    ? [...links.slice(0, -1), ['Quản trị người dùng', '/dashboard/admin/users', ShieldCheck], links.at(-1)]
+    : links;
   const navigate = useNavigate();
   const signOut = async () => {
     await logout();
@@ -47,7 +52,7 @@ export default function DashboardLayout() {
         </button>
       </div>
       <nav className="grid gap-1">
-        {links.map(([label, to, Icon, end]) => (
+        {visibleLinks.map(([label, to, Icon, end]) => (
           <NavLink
             end={end}
             key={to}
@@ -87,7 +92,10 @@ export default function DashboardLayout() {
             <Menu />
           </button>
           <div className="ml-auto text-right">
-            <p className="text-sm font-medium">{user?.fullName}</p>
+            <p className="flex items-center justify-end gap-1.5 text-sm font-medium">
+              {isAdmin && <ShieldCheck size={14} className="text-amber-300" />}
+              {user?.fullName}
+            </p>
             <p className="text-xs text-zinc-500">@{user?.username}</p>
           </div>
         </header>

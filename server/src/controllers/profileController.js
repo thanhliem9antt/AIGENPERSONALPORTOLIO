@@ -87,7 +87,12 @@ export const getPublic = asyncHandler(async (req, res) => {
   ]);
   if (!profile) throw new ApiError(404, 'Profile chưa được công khai');
   res.json({
-    user: { fullName: user.fullName, username: user.username },
+    user: {
+      fullName: user.fullName,
+      username: user.username,
+      roles: [...new Set(['user', ...(user.roles || []), ...(user.role === 'admin' ? ['admin'] : [])])],
+      titles: user.titles || [],
+    },
     profile,
     socialLinks,
     projects,

@@ -15,6 +15,7 @@ process.env.MONGOMS_DOWNLOAD_DIR ||= path.join(tmpdir(), 'noir-mongodb-binaries'
 const { default: app } = await import('../src/app.js');
 const { default: User } = await import('../src/models/User.js');
 const { default: Friendship } = await import('../src/models/Friendship.js');
+const { default: AdminAuditLog } = await import('../src/models/AdminAuditLog.js');
 
 let mongo;
 const origin = 'http://localhost:5173';
@@ -179,4 +180,59 @@ test('watch rooms support joining, friend invitations and personal history', asy
   assert.equal(suggestions.body.source, 'history');
   assert.equal(suggestions.body.videos[0].videoId, 'dQw4w9WgXcQ');
   assert.equal(suggestions.body.videos[0].watchCount, 1);
+});
+
+test('admins can grant multiple roles and titles while regular users are denied', async () => {
+  const adminResponse = await request(app).post('/api/auth/register').send(credentials('access_admin')).expect(201);
+  const memberResponse = await request(app).post('/api/auth/register').send(credentials('access_member')).expect(201);
+  const adminCookie = authCookie(adminResponse);
+  const memberCookie = authCookie(memberResponse);
+
+  await User.updateOne(
+    { _id: adminResponse.body.user._id },
+    { role: 'admin', roles: ['user', 'admin'] },
+    { runValidators: true },
+  );
+
+  await request(app).get('/api/admin/users').set('Cookie', memberCookie).expect(403);
+  await request(app)
+    .delete('/api/auth/account')
+    .set('Cookie', adminCookie)
+    .set('Origin', origin)
+    .send({ password: 'Password@123' })
+    .expect(409);
+  const directory = await request(app).get('/api/admin/users?q=access_member').set('Cookie', adminCookie).expect(200);
+  assert.equal(directory.body.users.length, 1);
+  assert.ok(directory.body.availableRoles.includes('admin'));
+
+  const updated = await request(app)
+    .put(`/api/admin/users/${memberResponse.body.user._id}/access`)
+    .set('Cookie', adminCookie)
+    .set('Origin', origin)
+    .send({
+      roles: ['user', 'admin', 'creator', 'verified'],
+      titles: ['Top Creator', 'Thành viên kỳ cựu'],
+    })
+    .expect(200);
+  assert.deepEqual(updated.body.user.roles, ['user', 'admin', 'creator', 'verified']);
+  assert.deepEqual(updated.body.user.titles, ['Top Creator', 'Thành viên kỳ cựu']);
+  assert.equal(await AdminAuditLog.countDocuments({ targetId: memberResponse.body.user._id }), 1);
+
+  await request(app).get('/api/admin/users').set('Cookie', memberCookie).expect(401);
+  const relogged = await request(app)
+    .post('/api/auth/login')
+    .send({ identity: 'user_access_member', password: 'Password@123' })
+    .expect(200);
+  await request(app).get('/api/admin/users').set('Cookie', authCookie(relogged)).expect(200);
+
+  const publicProfile = await request(app).get('/api/profile/public/user_access_member').expect(200);
+  assert.ok(publicProfile.body.user.roles.includes('admin'));
+  assert.deepEqual(publicProfile.body.user.titles, ['Top Creator', 'Thành viên kỳ cựu']);
+
+  await request(app)
+    .put(`/api/admin/users/${adminResponse.body.user._id}/access`)
+    .set('Cookie', adminCookie)
+    .set('Origin', origin)
+    .send({ roles: ['user'], titles: [] })
+    .expect(422);
 });

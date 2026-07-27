@@ -20,6 +20,7 @@ import {
   Phone,
   Send,
   Youtube,
+  BadgeCheck,
 } from 'lucide-react';
 import api from '../api/axiosClient';
 import { LoadingSpinner } from '../components/common/UI';
@@ -224,6 +225,28 @@ export default function PublicProfilePage() {
           </div>
           <h1 className="mt-5 text-3xl font-semibold tracking-tight">{profile.displayName || user.fullName}</h1>
           <p className="mt-1 text-sm text-zinc-400">@{user.username}</p>
+          {(user.roles?.some((role) => role !== 'user') || user.titles?.length > 0) && (
+            <div className="mt-3 flex flex-wrap justify-center gap-2">
+              {user.roles
+                ?.filter((role) => role !== 'user')
+                .map((role) => (
+                  <span
+                    key={role}
+                    className="inline-flex items-center gap-1 rounded-full border border-violet-400/20 bg-violet-500/10 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-violet-200"
+                  >
+                    <BadgeCheck size={12} /> {role}
+                  </span>
+                ))}
+              {user.titles?.map((title) => (
+                <span
+                  key={title}
+                  className="rounded-full border border-amber-400/20 bg-amber-500/10 px-2.5 py-1 text-[11px] text-amber-200"
+                >
+                  {title}
+                </span>
+              ))}
+            </div>
+          )}
           <p className="mt-4 text-violet-300" style={{ color: appearance.primaryColor }}>
             {profile.headline}
           </p>

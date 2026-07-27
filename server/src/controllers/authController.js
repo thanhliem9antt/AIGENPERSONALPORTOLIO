@@ -85,6 +85,13 @@ export const updateAccount = asyncHandler(async (req, res) => {
 export const deleteAccount = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.id).select('+password');
   if (!(await user.comparePassword(req.body.password || ''))) throw new ApiError(400, 'Mật khẩu không đúng');
+  if (user.role === 'admin' || user.roles?.includes('admin')) {
+    const adminCount = await User.countDocuments({
+      isActive: true,
+      $or: [{ role: 'admin' }, { roles: 'admin' }],
+    });
+    if (adminCount <= 1) throw new ApiError(409, 'Không thể vô hiệu hóa admin cuối cùng của hệ thống');
+  }
   user.isActive = false;
   await user.save();
   res.clearCookie('profile_token', { path: '/' });

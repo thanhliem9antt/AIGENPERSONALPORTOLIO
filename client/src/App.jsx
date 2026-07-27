@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router';
 import MainLayout from './layouts/MainLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import ProtectedRoute from './routes/ProtectedRoute';
+import AdminRoute from './routes/AdminRoute';
 import { LoadingSpinner } from './components/common/UI';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -19,6 +20,7 @@ const SettingsPage = lazy(() => import('./pages/dashboard/SettingsPage'));
 const CommunityPage = lazy(() => import('./pages/dashboard/CommunityPage'));
 const GamesPage = lazy(() => import('./pages/dashboard/GamesPage'));
 const WatchTogetherPage = lazy(() => import('./pages/dashboard/WatchTogetherPage'));
+const AdminUsersPage = lazy(() => import('./pages/dashboard/AdminUsersPage'));
 
 export default function App() {
   return (
@@ -41,6 +43,9 @@ export default function App() {
             <Route path="community" element={<CommunityPage />} />
             <Route path="watch-together" element={<WatchTogetherPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route element={<AdminRoute />}>
+              <Route path="admin/users" element={<AdminUsersPage />} />
+            </Route>
           </Route>
         </Route>
         <Route path="*" element={<NotFoundPage />} />
