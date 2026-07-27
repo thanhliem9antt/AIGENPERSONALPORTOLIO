@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { CalendarDays, Copy, ExternalLink, FolderKanban, Gamepad2, Link2, UsersRound } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import api from '../../api/axiosClient';
 import { Button, ErrorState, LoadingSpinner } from '../../components/common/UI';
 import { useAuth } from '../../contexts/AuthContext';

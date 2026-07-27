@@ -1,4 +1,4 @@
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router';
 import { Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/common/UI';

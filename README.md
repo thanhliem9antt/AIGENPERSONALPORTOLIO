@@ -50,7 +50,7 @@ personal-profile/
 
 ## Chạy development
 
-Yêu cầu Node.js 20+, npm và một MongoDB database.
+Yêu cầu Node.js 22.22+ (khuyến nghị Node.js 24), npm và một MongoDB database.
 
 Backend:
 

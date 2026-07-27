@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import api from '../../api/axiosClient';
 import { Button, ConfirmDialog, Field } from '../../components/common/UI';
 import { useAuth } from '../../contexts/AuthContext';
