@@ -24,7 +24,7 @@ export default function CommunityPage() {
         setFriends(f.data.friendships);
       })
       .catch(setError);
-    const root = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
+    const root = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
     const socket = io(root, { withCredentials: true });
     socket.on('world:message', (message) => setMessages((items) => [...(items || []), message]));
     socket.on('connect_error', () => setError((current) => current || new Error('Không thể kết nối kênh chat')));

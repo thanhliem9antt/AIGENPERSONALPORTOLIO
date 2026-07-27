@@ -21,7 +21,7 @@ export default function MainLayout() {
             </Link>
           ) : (
             <>
-              <Link className="hidden text-sm text-zinc-400 hover:text-white sm:block" to="/login">
+              <Link className="text-sm text-zinc-400 hover:text-white" to="/login">
                 Đăng nhập
               </Link>
               <Link to="/register">

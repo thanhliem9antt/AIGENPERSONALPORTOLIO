@@ -52,7 +52,7 @@ function extractVideoId(value) {
   }
 }
 
-const socketRoot = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
+const socketRoot = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
 const roomFromUrl = () => new URLSearchParams(location.search).get('room')?.toUpperCase() || '';
 
 function VideoCard({ video, onSelect }) {
