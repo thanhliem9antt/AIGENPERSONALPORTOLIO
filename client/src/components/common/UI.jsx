@@ -32,6 +32,10 @@ export function EmptyState({ title, description, action }) {
   return <div className="glass grid place-items-center rounded-3xl p-10 text-center"><Inbox className="mb-4 text-zinc-500" size={34} /><h3 className="font-semibold">{title}</h3><p className="mt-2 max-w-sm text-sm text-zinc-400">{description}</p>{action && <div className="mt-5">{action}</div>}</div>;
 }
 
+export function ErrorState({ message = 'Không thể tải dữ liệu', onRetry }) {
+  return <div role="alert" className="glass grid place-items-center rounded-3xl border border-red-500/20 p-10 text-center"><p className="font-semibold text-red-300">{message}</p><p className="mt-2 text-sm text-zinc-500">Kiểm tra kết nối và thử lại sau ít phút.</p>{onRetry && <Button type="button" variant="ghost" className="mt-5" onClick={onRetry}>Thử lại</Button>}</div>;
+}
+
 export function Modal({ open, title, onClose, children }) {
   if (!open) return null;
   return <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4" onMouseDown={onClose}><div role="dialog" aria-modal="true" aria-label={title} className="glass max-h-[90vh] w-full max-w-xl overflow-auto rounded-3xl p-6" onMouseDown={(e) => e.stopPropagation()}><div className="mb-5 flex items-center justify-between"><h2 className="text-xl font-semibold">{title}</h2><button className="text-zinc-400" onClick={onClose}>Đóng</button></div>{children}</div></div>;

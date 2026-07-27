@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Clock3, ExternalLink, Gamepad2, GripVertical, Heart, Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import api from '../../api/axiosClient';
-import { Button, EmptyState, Field, LoadingSpinner, Modal, Select } from '../../components/common/UI';
+import { Button, EmptyState, ErrorState, Field, LoadingSpinner, Modal, Select } from '../../components/common/UI';
 import { useToast } from '../../contexts/ToastContext';
 import useResource from '../../hooks/useResource';
 
@@ -38,7 +38,7 @@ function DetailsForm({ form, setForm, onSubmit, submitLabel }) {
 }
 
 export default function GamesPage() {
-  const { data: games, setData: setGames, loading } = useResource('/games', 'games');
+  const { data: games, setData: setGames, loading, error, reload } = useResource('/games', 'games');
   const [catalog, setCatalog] = useState([]);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -92,6 +92,7 @@ export default function GamesPage() {
   };
 
   if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorState message={error.response?.data?.message} onRetry={reload} />;
 
   return <section>
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="eyebrow">Gaming identity</p><h1 className="mt-2 text-3xl font-semibold">Game đã chơi</h1><p className="mt-2 text-sm text-zinc-500">Thêm những tựa game định hình trải nghiệm của bạn.</p></div><Button onClick={() => setCatalogOpen(true)}><Plus size={16} />Thêm game</Button></div>

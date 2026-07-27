@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { CalendarDays, Copy, ExternalLink, FolderKanban, Gamepad2, Link2, UsersRound } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axiosClient';
-import { Button, LoadingSpinner } from '../../components/common/UI';
+import { Button, ErrorState, LoadingSpinner } from '../../components/common/UI';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 
 export default function OverviewPage() {
-  const {user}=useAuth(); const {notify}=useToast(); const [stats,setStats]=useState(null);
-  useEffect(()=>{Promise.all([api.get('/profile/me'),api.get('/social-links'),api.get('/projects'),api.get('/games')]).then(([p,s,j,g])=>setStats({profile:p.data.profile,links:s.data.items.length,projects:j.data.items.length,games:g.data.games.length}))},[]);
+  const {user}=useAuth(); const {notify}=useToast(); const [stats,setStats]=useState(null); const [error,setError]=useState(null);
+  const load=useCallback(()=>{setError(null);Promise.all([api.get('/profile/me'),api.get('/social-links'),api.get('/projects'),api.get('/games')]).then(([p,s,j,g])=>setStats({profile:p.data.profile,links:s.data.items.length,projects:j.data.items.length,games:g.data.games.length})).catch(setError)},[]);
+  useEffect(()=>{load()},[load]);
+  if(error)return <ErrorState message={error.response?.data?.message} onRetry={load}/>;
   if(!stats)return <LoadingSpinner/>;
   const url=`${location.origin}/@${user.username}`; const copy=()=>navigator.clipboard.writeText(url).then(()=>notify('Đã sao chép đường dẫn'));
   const cards=[[UsersRound,'Lượt xem',stats.profile?.profileViews||0],[Link2,'Liên kết',stats.links],[FolderKanban,'Dự án',stats.projects],[Gamepad2,'Game đã chơi',stats.games],[CalendarDays,'Ngày tham gia',new Date(user.createdAt).toLocaleDateString('vi-VN')]];

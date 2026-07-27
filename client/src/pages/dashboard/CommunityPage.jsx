@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { Send, UserPlus } from 'lucide-react';
 import { io } from 'socket.io-client';
 import api from '../../api/axiosClient';
-import { Button, Field, LoadingSpinner } from '../../components/common/UI';
+import { Button, ErrorState, LoadingSpinner } from '../../components/common/UI';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 
 export default function CommunityPage(){
-  const {user}=useAuth();const {notify}=useToast();const [messages,setMessages]=useState(null);const [text,setText]=useState('');const [username,setUsername]=useState('');const [friends,setFriends]=useState([]);const socketRef=useRef();
-  useEffect(()=>{Promise.all([api.get('/community/messages/world'),api.get('/community/friends')]).then(([m,f])=>{setMessages(m.data.messages);setFriends(f.data.friendships)});const root=(import.meta.env.VITE_API_URL||'http://localhost:5000/api').replace(/\/api\/?$/,'');const socket=io(root,{withCredentials:true});socket.on('world:message',(message)=>setMessages(items=>[...(items||[]),message]));socketRef.current=socket;return()=>socket.disconnect()},[]);
+  const {user}=useAuth();const {notify}=useToast();const [messages,setMessages]=useState(null);const [error,setError]=useState(null);const [reloadKey,setReloadKey]=useState(0);const [text,setText]=useState('');const [username,setUsername]=useState('');const [friends,setFriends]=useState([]);const socketRef=useRef();
+  useEffect(()=>{setError(null);Promise.all([api.get('/community/messages/world'),api.get('/community/friends')]).then(([m,f])=>{setMessages(m.data.messages);setFriends(f.data.friendships)}).catch(setError);const root=(import.meta.env.VITE_API_URL||'http://localhost:5000/api').replace(/\/api\/?$/,'');const socket=io(root,{withCredentials:true});socket.on('world:message',(message)=>setMessages(items=>[...(items||[]),message]));socket.on('connect_error',()=>setError(current=>current||new Error('Không thể kết nối kênh chat')));socketRef.current=socket;return()=>socket.disconnect()},[reloadKey]);
+  if(error)return <ErrorState message={error.response?.data?.message||error.message} onRetry={()=>{setMessages(null);setReloadKey(value=>value+1)}}/>;
   if(!messages)return <LoadingSpinner/>;
   const send=(e)=>{e.preventDefault();if(!text.trim())return;socketRef.current.emit('world:message',text.trim(),(result)=>{if(!result?.ok)notify('Không gửi được tin nhắn','error')});setText('')};
   const add=async(e)=>{e.preventDefault();try{await api.post('/community/friends',{username});setUsername('');notify('Đã gửi lời mời kết bạn');const {data}=await api.get('/community/friends');setFriends(data.friendships)}catch(err){notify(err.response?.data?.message||'Không thể gửi lời mời','error')}};

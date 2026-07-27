@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import api from '../../api/axiosClient';
-import { Button, Field, LoadingSpinner, Select } from '../../components/common/UI';
+import { Button, ErrorState, Field, LoadingSpinner, Select } from '../../components/common/UI';
 import ProfilePreview from '../../components/profile/ProfilePreview';
 import useResource from '../../hooks/useResource';
 import { useAuth } from '../../contexts/AuthContext';
@@ -13,8 +13,9 @@ const tracks=[
   ['Soft Horizon','https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'],
 ];
 export default function AppearancePage(){
-  const {data:form,setData:setForm,loading}=useResource('/appearance','appearance');const {user}=useAuth();const {notify}=useToast();const musicRef=useRef();const [busy,setBusy]=useState(false);
+  const {data:form,setData:setForm,loading,error,reload}=useResource('/appearance','appearance');const {user}=useAuth();const {notify}=useToast();const musicRef=useRef();const [busy,setBusy]=useState(false);
   if(loading)return <LoadingSpinner/>;
+  if(error)return <ErrorState message={error.response?.data?.message} onRetry={reload}/>;
   const set=(k)=>(e)=>setForm({...form,[k]:e.target.type==='checkbox'?e.target.checked:e.target.type==='range'?Number(e.target.value):e.target.value});
   const save=async(e)=>{e.preventDefault();setBusy(true);try{const {data}=await api.put('/appearance',form);setForm(data.appearance);notify('Đã lưu giao diện')}catch{notify('Không thể lưu giao diện','error')}finally{setBusy(false)}};
   const upload=async(e)=>{const body=new FormData();body.append('music',e.target.files[0]);const {data}=await api.post('/appearance/music',body);setForm(data.appearance);notify('Đã tải nhạc lên')};

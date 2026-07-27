@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import api from '../../api/axiosClient';
-import { Button, Field, LoadingSpinner } from '../../components/common/UI';
+import { Button, ErrorState, Field, LoadingSpinner } from '../../components/common/UI';
 import { ImageUploader } from '../../components/forms/Uploaders';
 import ProfilePreview from '../../components/profile/ProfilePreview';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 
 export default function ProfileEditPage(){
-  const {user,setUser}=useAuth();const {notify}=useToast();const [form,setForm]=useState(null);const [busy,setBusy]=useState(false);const [skill,setSkill]=useState('');
-  useEffect(()=>{api.get('/profile/me').then(({data})=>setForm({...data.profile,username:user.username,skills:data.profile?.skills||[]}))},[user.username]);
+  const {user,setUser}=useAuth();const {notify}=useToast();const [form,setForm]=useState(null);const [error,setError]=useState(null);const [busy,setBusy]=useState(false);const [skill,setSkill]=useState('');
+  const load=useCallback(()=>{setError(null);api.get('/profile/me').then(({data})=>setForm({...data.profile,username:user.username,skills:data.profile?.skills||[]})).catch(setError)},[user.username]);
+  useEffect(()=>{load()},[load]);
+  if(error)return <ErrorState message={error.response?.data?.message} onRetry={load}/>;
   if(!form)return <LoadingSpinner/>;
   const set=(k)=>(e)=>setForm({...form,[k]:e.target.value});
   const save=async(e)=>{e.preventDefault();setBusy(true);try{const {data}=await api.put('/profile/me',form);setForm({...data.profile,username:data.user.username});setUser(data.user);notify('Đã lưu profile')}catch(err){notify(err.response?.data?.message||'Không thể lưu','error')}finally{setBusy(false)}};
