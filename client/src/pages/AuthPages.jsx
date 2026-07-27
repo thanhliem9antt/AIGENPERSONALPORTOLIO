@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router';
 import { Eye, EyeOff, Sparkles } from 'lucide-react';
 import { Button, Field } from '../components/common/UI';
 import { useAuth } from '../contexts/AuthContext';
@@ -104,6 +104,8 @@ export function RegisterPage() {
   const { register } = useAuth();
   const { notify } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const referrer = searchParams.get('ref')?.match(/^[a-zA-Z0-9_]{1,50}$/)?.[0] || '';
   const submit = async (e) => {
     e.preventDefault();
     const next = {};
@@ -116,7 +118,7 @@ export function RegisterPage() {
     setBusy(true);
     try {
       const { confirmPassword: _confirmPassword, ...payload } = form;
-      await register(payload);
+      await register({ ...payload, ...(referrer ? { ref: referrer } : {}) });
       notify('Tài khoản đã sẵn sàng');
       navigate('/dashboard/profile');
     } catch (err) {
@@ -128,6 +130,11 @@ export function RegisterPage() {
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
   return (
     <AuthShell title="Tạo profile của bạn" subtitle="Bắt đầu với một tài khoản miễn phí.">
+      {referrer && (
+        <p className="mb-5 rounded-2xl border border-violet-400/20 bg-violet-500/10 px-4 py-3 text-center text-sm text-violet-200">
+          Bạn được <strong>@{referrer}</strong> giới thiệu
+        </p>
+      )}
       <form className="grid gap-4" onSubmit={submit}>
         <Field label="Họ và tên" value={form.fullName} onChange={set('fullName')} required />
         <Field label="Username" value={form.username} onChange={set('username')} error={errors.username} required />

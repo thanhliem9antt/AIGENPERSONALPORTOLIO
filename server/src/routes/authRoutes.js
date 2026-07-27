@@ -27,6 +27,11 @@ router.post(
       .matches(/^[a-zA-Z0-9_]+$/)
       .withMessage('Username chỉ gồm chữ, số và dấu gạch dưới'),
     body('email').isEmail().normalizeEmail().withMessage('Email không hợp lệ'),
+    body('ref')
+      .optional({ values: 'falsy' })
+      .trim()
+      .matches(/^[a-zA-Z0-9_]+$/)
+      .isLength({ max: 50 }),
     passwordRule,
   ],
   validate,

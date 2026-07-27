@@ -18,7 +18,17 @@ export const register = asyncHandler(async (req, res) => {
       409,
       exists.username === normalizedUsername ? 'Username đã được sử dụng' : 'Email đã được sử dụng',
     );
-  const user = await User.create({ fullName, username: normalizedUsername, email, password });
+  const referralUsername = req.body.ref?.toLowerCase();
+  const referrer = referralUsername
+    ? await User.findOne({ username: referralUsername, isActive: true }).select('_id')
+    : null;
+  const user = await User.create({
+    fullName,
+    username: normalizedUsername,
+    email,
+    password,
+    referredBy: referrer?._id || null,
+  });
   try {
     await Promise.all([
       Profile.create({ userId: user.id, displayName: fullName }),
@@ -32,6 +42,7 @@ export const register = asyncHandler(async (req, res) => {
     ]);
     throw error;
   }
+  if (referrer) await User.updateOne({ _id: referrer._id }, { $inc: { referralCount: 1 } });
   sendSession(res, user, true, 201);
 });
 

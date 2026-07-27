@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { CalendarDays, Copy, ExternalLink, FolderKanban, Gamepad2, Link2, UsersRound } from 'lucide-react';
+import { CalendarDays, Copy, ExternalLink, FolderKanban, Gamepad2, Link2, UserPlus, UsersRound } from 'lucide-react';
 import { Link } from 'react-router';
 import api from '../../api/axiosClient';
 import { Button, ErrorState, LoadingSpinner } from '../../components/common/UI';
@@ -30,12 +30,16 @@ export default function OverviewPage() {
   if (error) return <ErrorState message={error.response?.data?.message} onRetry={load} />;
   if (!stats) return <LoadingSpinner />;
   const url = `${location.origin}/@${user.username}`;
+  const referralUrl = `${location.origin}/register?ref=${user.username}`;
   const copy = () => navigator.clipboard.writeText(url).then(() => notify('Đã sao chép đường dẫn'));
+  const copyReferral = () =>
+    navigator.clipboard.writeText(referralUrl).then(() => notify('Đã sao chép link giới thiệu'));
   const cards = [
     [UsersRound, 'Lượt xem', stats.profile?.profileViews || 0],
     [Link2, 'Liên kết', stats.links],
     [FolderKanban, 'Dự án', stats.projects],
     [Gamepad2, 'Game đã chơi', stats.games],
+    [UserPlus, 'Đã giới thiệu', user.referralCount || 0],
     [CalendarDays, 'Ngày tham gia', new Date(user.createdAt).toLocaleDateString('vi-VN')],
   ];
   return (
@@ -47,6 +51,10 @@ export default function OverviewPage() {
           <p className="mt-2 text-zinc-500">Profile của bạn đang sẵn sàng để tạo ấn tượng.</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="ghost" onClick={copyReferral}>
+            <UserPlus size={16} />
+            Mời bạn bè
+          </Button>
           <Button variant="ghost" onClick={copy}>
             <Copy size={16} />
             Sao chép link
@@ -59,7 +67,7 @@ export default function OverviewPage() {
           </a>
         </div>
       </div>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
         {cards.map(([Icon, label, value]) => (
           <article key={label} className="glass rounded-2xl p-5">
             <Icon className="text-violet-300" size={19} />

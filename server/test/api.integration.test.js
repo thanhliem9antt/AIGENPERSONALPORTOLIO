@@ -13,6 +13,7 @@ process.env.CLIENT_URL = 'http://localhost:5173';
 process.env.MONGOMS_DOWNLOAD_DIR ||= path.join(tmpdir(), 'noir-mongodb-binaries');
 
 const { default: app } = await import('../src/app.js');
+const { default: User } = await import('../src/models/User.js');
 
 let mongo;
 const origin = 'http://localhost:5173';
@@ -103,4 +104,17 @@ test('changing password invalidates the previous token and issues a new one', as
 
   await request(app).get('/api/auth/me').set('Cookie', previousCookie).expect(401);
   await request(app).get('/api/auth/me').set('Cookie', currentCookie).expect(200);
+});
+
+test('registration records a valid referrer and increments their referral count', async () => {
+  await request(app).post('/api/auth/register').send(credentials('inviter')).expect(201);
+  await request(app)
+    .post('/api/auth/register')
+    .send({ ...credentials('referred'), ref: 'user_inviter' })
+    .expect(201);
+
+  const inviter = await User.findOne({ username: 'user_inviter' });
+  const referred = await User.findOne({ username: 'user_referred' }).select('+referredBy');
+  assert.equal(inviter.referralCount, 1);
+  assert.equal(referred.referredBy.toString(), inviter.id);
 });

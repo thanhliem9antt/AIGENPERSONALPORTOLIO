@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true, select: false },
     role: { type: String, default: 'user', enum: ['user', 'admin'] },
     isActive: { type: Boolean, default: true },
+    referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null, select: false },
+    referralCount: { type: Number, default: 0, min: 0 },
     tokenVersion: { type: Number, default: 0, min: 0, select: false },
   },
   { timestamps: true },
@@ -25,6 +27,7 @@ userSchema.methods.comparePassword = function comparePassword(value) {
 userSchema.methods.toJSON = function safeJSON() {
   const object = this.toObject();
   delete object.password;
+  delete object.referredBy;
   delete object.tokenVersion;
   return object;
 };

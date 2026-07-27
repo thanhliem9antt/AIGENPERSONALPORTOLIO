@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { motion } from 'framer-motion';
 import {
   Clock3,
@@ -394,7 +394,18 @@ export default function PublicProfilePage() {
           </section>
         )}
 
-        <footer className="mt-10 flex items-center justify-between border-t border-white/10 pt-5">
+        <aside className="mt-10 rounded-2xl border border-violet-400/20 bg-violet-500/10 p-5 text-center">
+          <p className="font-medium">Bạn cũng muốn có một profile như thế này?</p>
+          <p className="mt-1 text-xs text-zinc-400">Tạo trang cá nhân miễn phí và chia sẻ dấu ấn của riêng bạn.</p>
+          <Link
+            to={`/register?ref=${encodeURIComponent(user.username)}`}
+            className="mt-4 inline-flex rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-violet-100"
+          >
+            Tạo profile của tôi
+          </Link>
+        </aside>
+
+        <footer className="mt-6 flex items-center justify-between border-t border-white/10 pt-5">
           <button
             onClick={() => navigator.clipboard.writeText(location.href).then(() => notify('Đã sao chép link'))}
             className="flex items-center gap-2 text-xs text-zinc-500 hover:text-white"
