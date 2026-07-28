@@ -18,6 +18,15 @@ function previewBackground(appearance, profile) {
   return { background: appearance.backgroundValue || 'linear-gradient(135deg,#08090c,#2e1065)' };
 }
 
+function previewCover(appearance, profile) {
+  const type = appearance.coverType || 'image';
+  const value = appearance.coverValue || profile.backgroundUrl;
+  if (type === 'solid') return { background: value || '#111218' };
+  if (type === 'gradient') return { background: value || 'linear-gradient(135deg,#18181b,#312e81)' };
+  if (/^https?:\/\//i.test(value || '')) return { backgroundImage: `url(${value})` };
+  return { background: 'linear-gradient(135deg,#18181b,#312e81)' };
+}
+
 function CursorPreview({ appearance, position }) {
   const style =
     appearance.cursorStyle === 'default' && appearance.enableCursorEffect
@@ -141,17 +150,15 @@ export default function ProfilePreview({ profile = {}, user = {}, appearance = {
         className="absolute left-5 right-5 top-5 z-10 h-32 overflow-hidden rounded-2xl bg-gradient-to-br from-violet-500/40 via-zinc-900 to-cyan-500/30"
         aria-label="Ảnh bìa profile"
       >
-        {profile.backgroundUrl && (
-          <div
-            className="absolute inset-0 scale-105 bg-cover bg-center"
-            style={{
-              backgroundImage: `url(${profile.backgroundUrl})`,
-              backgroundPosition: appearance.backgroundPosition || 'center',
-              filter: `blur(${appearance.coverBlur || 0}px)`,
-            }}
-            aria-hidden="true"
-          />
-        )}
+        <div
+          className="absolute inset-0 scale-105 bg-cover"
+          style={{
+            ...previewCover(appearance, profile),
+            backgroundPosition: appearance.backgroundPosition || 'center',
+            filter: `blur(${appearance.coverBlur || 0}px)`,
+          }}
+          aria-hidden="true"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" aria-hidden="true" />
       </div>
       {appearance.backgroundType === 'video' && (

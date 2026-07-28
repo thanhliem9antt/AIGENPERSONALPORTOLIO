@@ -250,6 +250,8 @@ test('appearance saves advanced background and cursor customization', async () =
       backgroundOpacity: 0.8,
       backgroundBlur: 12,
       coverBlur: 9,
+      coverType: 'solid',
+      coverValue: '#312e81',
       backgroundPosition: 'top',
       overlayColor: '#111827',
       cursorStyle: 'ring',
@@ -260,6 +262,8 @@ test('appearance saves advanced background and cursor customization', async () =
 
   assert.equal(response.body.appearance.backgroundBlur, 12);
   assert.equal(response.body.appearance.coverBlur, 9);
+  assert.equal(response.body.appearance.coverType, 'solid');
+  assert.equal(response.body.appearance.coverValue, '#312e81');
   assert.equal(response.body.appearance.backgroundPosition, 'top');
   assert.equal(response.body.appearance.overlayColor, '#111827');
   assert.equal(response.body.appearance.cursorStyle, 'ring');

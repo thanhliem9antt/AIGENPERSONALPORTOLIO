@@ -89,6 +89,8 @@ export const getAppearance = asyncHandler(async (req, res) => {
     displayNameColor: '#ffffff',
     displayNameGradient: 'linear-gradient(90deg,#c4b5fd,#f0abfc)',
     profileEffect: 'none',
+    coverType: 'image',
+    coverValue: '',
   };
   let changed = false;
   Object.entries(legacyDefaults).forEach(([key, value]) => {
@@ -109,6 +111,8 @@ export const updateAppearance = asyncHandler(async (req, res) => {
     'backgroundOpacity',
     'backgroundBlur',
     'coverBlur',
+    'coverType',
+    'coverValue',
     'backgroundPosition',
     'overlayColor',
     'blurStrength',

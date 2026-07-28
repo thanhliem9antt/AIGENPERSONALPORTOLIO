@@ -146,6 +146,86 @@ export default function AppearancePage() {
       <div className="mt-8 grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_400px]">
         <form onSubmit={save} className="glass grid gap-5 rounded-3xl p-5 sm:grid-cols-2 sm:p-6">
           <SectionTitle
+            icon={Image}
+            title="Ảnh bìa profile"
+            description="Vùng bo tròn lớn phía sau avatar. Có thể dùng ảnh, màu đơn hoặc gradient riêng với background."
+          />
+          <Select label="Kiểu ảnh bìa" value={form.coverType || 'image'} onChange={set('coverType')}>
+            <option value="image">Hình ảnh</option>
+            <option value="gradient">Gradient</option>
+            <option value="solid">Màu đơn</option>
+          </Select>
+          <label className="text-sm text-zinc-300">
+            Độ mờ ảnh bìa: {form.coverBlur ?? 0}px
+            <input
+              className="mt-3 w-full accent-violet-500"
+              type="range"
+              min="0"
+              max="24"
+              value={form.coverBlur ?? 0}
+              onChange={set('coverBlur')}
+            />
+          </label>
+          {(!form.coverType || form.coverType === 'image') && (
+            <div className="grid gap-4 sm:col-span-2">
+              <Field
+                label="URL ảnh bìa"
+                value={form.coverValue || ''}
+                onChange={set('coverValue')}
+                placeholder="https://..."
+              />
+              <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-black/15 p-4">
+                <Image className="text-zinc-500" size={20} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium">Tải ảnh bìa từ thiết bị</p>
+                  <p className="text-xs text-zinc-500">JPG, PNG, WebP hoặc GIF · tối đa 5MB</p>
+                </div>
+                <ImageUploader
+                  endpoint="/profile/background"
+                  label="Tải ảnh bìa"
+                  onUploaded={(profile) => setForm({ ...form, coverType: 'image', coverValue: profile.backgroundUrl })}
+                />
+              </div>
+            </div>
+          )}
+          {form.coverType === 'gradient' && (
+            <div className="sm:col-span-2">
+              <span className="text-sm text-zinc-300">Gradient ảnh bìa</span>
+              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {gradientPresets.map(([name, value]) => (
+                  <button
+                    key={`cover-${name}`}
+                    type="button"
+                    onClick={() => update('coverValue', value)}
+                    className={`h-16 rounded-2xl border text-left transition ${
+                      form.coverValue === value ? 'border-violet-300 ring-2 ring-violet-500/30' : 'border-white/10'
+                    }`}
+                    style={{ background: value }}
+                  >
+                    <span className="block bg-black/40 px-2 py-1 text-[11px]">{name}</span>
+                  </button>
+                ))}
+              </div>
+              <Field
+                label="CSS gradient tùy chỉnh"
+                className="mt-4"
+                value={form.coverValue || ''}
+                onChange={set('coverValue')}
+                placeholder="linear-gradient(135deg, #18181b, #312e81)"
+              />
+            </div>
+          )}
+          {form.coverType === 'solid' && (
+            <Field
+              label="Màu ảnh bìa"
+              type="color"
+              className="h-12 p-2 sm:col-span-2"
+              value={/^#[0-9a-f]{6}$/i.test(form.coverValue || '') ? form.coverValue : '#111218'}
+              onChange={set('coverValue')}
+            />
+          )}
+          <div className="my-1 border-t border-white/10 sm:col-span-2" />
+          <SectionTitle
             icon={Palette}
             title="Phông nền"
             description="Chọn gradient, ảnh, màu đơn hoặc video làm không gian chính."

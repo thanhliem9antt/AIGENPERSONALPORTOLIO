@@ -105,6 +105,15 @@ function displayNameStyle(appearance) {
   return props;
 }
 
+function coverBackground(appearance, profile) {
+  const type = appearance.coverType || 'image';
+  const value = appearance.coverValue || profile.backgroundUrl;
+  if (type === 'solid') return { background: value || '#111218' };
+  if (type === 'gradient') return { background: value || 'linear-gradient(135deg,#18181b,#312e81)' };
+  if (/^https?:\/\//i.test(value || '')) return { backgroundImage: `url(${value})` };
+  return { background: 'linear-gradient(135deg,#18181b,#312e81)' };
+}
+
 export default function PublicProfilePage() {
   const { profileHandle } = useParams();
   const username = profileHandle?.startsWith('@') ? profileHandle.slice(1) : profileHandle;
@@ -318,17 +327,15 @@ export default function PublicProfilePage() {
           className="relative -mx-5 -mt-5 mb-0 h-56 overflow-hidden bg-gradient-to-br from-violet-500/40 via-zinc-900 to-cyan-500/30 sm:-mx-8 sm:-mt-8"
           aria-label="Ảnh bìa profile"
         >
-          {profile.backgroundUrl && (
-            <div
-              className="absolute inset-0 scale-105 bg-cover bg-center"
-              style={{
-                backgroundImage: `url(${profile.backgroundUrl})`,
-                backgroundPosition: appearance.backgroundPosition || 'center',
-                filter: `blur(${appearance.coverBlur || 0}px)`,
-              }}
-              aria-hidden="true"
-            />
-          )}
+          <div
+            className="absolute inset-0 scale-105 bg-cover"
+            style={{
+              ...coverBackground(appearance, profile),
+              backgroundPosition: appearance.backgroundPosition || 'center',
+              filter: `blur(${appearance.coverBlur || 0}px)`,
+            }}
+            aria-hidden="true"
+          />
           <div
             className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"
             aria-hidden="true"

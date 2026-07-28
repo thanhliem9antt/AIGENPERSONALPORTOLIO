@@ -9,6 +9,8 @@ const appearanceSchema = new mongoose.Schema(
     backgroundOpacity: { type: Number, default: 0.7, min: 0, max: 1 },
     backgroundBlur: { type: Number, default: 0, min: 0, max: 24 },
     coverBlur: { type: Number, default: 0, min: 0, max: 24 },
+    coverType: { type: String, enum: ['image', 'gradient', 'solid'], default: 'image' },
+    coverValue: { type: String, default: '' },
     backgroundPosition: { type: String, default: 'center', enum: ['center', 'top', 'bottom'] },
     overlayColor: { type: String, default: '#08090c', match: /^#[0-9a-f]{6}$/i },
     blurStrength: { type: Number, default: 18, min: 0, max: 40 },
