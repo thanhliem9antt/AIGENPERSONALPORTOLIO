@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { MapPin, Play } from 'lucide-react';
 
 function previewBackground(appearance, profile) {
@@ -17,7 +18,7 @@ function previewBackground(appearance, profile) {
   return { background: appearance.backgroundValue || 'linear-gradient(135deg,#08090c,#2e1065)' };
 }
 
-function CursorPreview({ appearance }) {
+function CursorPreview({ appearance, position }) {
   const style =
     appearance.cursorStyle === 'default' && appearance.enableCursorEffect
       ? 'glow'
@@ -27,13 +28,26 @@ function CursorPreview({ appearance }) {
   const color = appearance.cursorColor || '#a78bfa';
   return (
     <span
-      className={`pointer-events-none absolute right-7 top-7 z-30 rounded-full ${
-        style === 'glow' ? 'blur-md' : style === 'ring' ? 'border-2 bg-transparent' : ''
+      className={`pointer-events-none absolute z-30 rounded-full ${
+        style === 'glow'
+          ? 'blur-md'
+          : style === 'ring'
+            ? 'border-2 bg-transparent'
+            : style === 'sparkle'
+              ? 'cursor-sparkle'
+              : style === 'heart'
+                ? 'cursor-heart'
+                : style === 'block'
+                  ? 'cursor-block'
+                  : ''
       }`}
       style={{
+        left: position.x,
+        top: position.y,
+        '--cursor-color': color,
         width: size,
         height: size,
-        background: style === 'ring' ? 'transparent' : color,
+        background: style === 'ring' || style === 'sparkle' || style === 'heart' ? 'transparent' : color,
         borderColor: color,
         boxShadow: style === 'glow' ? `0 0 ${size * 1.5}px ${size / 2}px ${color}` : undefined,
       }}
@@ -82,6 +96,7 @@ function displayNamePreviewStyle(appearance) {
 }
 
 export default function ProfilePreview({ profile = {}, user = {}, appearance = {} }) {
+  const [cursorPosition, setCursorPosition] = useState({ x: '78%', y: '18%' });
   const cursorStyle =
     appearance.cursorStyle === 'default' && appearance.enableCursorEffect
       ? 'glow'
@@ -96,6 +111,13 @@ export default function ProfilePreview({ profile = {}, user = {}, appearance = {
   return (
     <div
       className="relative min-h-[460px] overflow-hidden border border-white/10 bg-[#08090c] p-5"
+      onPointerMove={(event) => {
+        const bounds = event.currentTarget.getBoundingClientRect();
+        setCursorPosition({
+          x: event.clientX - bounds.left,
+          y: event.clientY - bounds.top,
+        });
+      }}
       style={{
         borderRadius: appearance.borderRadius || 24,
         fontFamily: appearance.fontFamily,
@@ -120,7 +142,7 @@ export default function ProfilePreview({ profile = {}, user = {}, appearance = {
           <Play size={10} /> Video nền
         </span>
       )}
-      <CursorPreview appearance={appearance} />
+      <CursorPreview appearance={appearance} position={cursorPosition} />
 
       <div
         className={`relative z-10 mt-20 border p-5 shadow-2xl backdrop-blur-xl ${cardClass}`}
