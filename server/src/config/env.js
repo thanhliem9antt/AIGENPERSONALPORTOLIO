@@ -23,7 +23,9 @@ function parseUrlList(name, fallback) {
 }
 
 export function getClientOrigins() {
-  return parseUrlList('CLIENT_URL', 'http://localhost:5173');
+  const origins = parseUrlList('CLIENT_URL', 'http://localhost:5173');
+  if (process.env.NODE_ENV === 'production') origins.push('https://zenpolio.vercel.app');
+  return [...new Set(origins)];
 }
 
 export function assertEnvironment() {

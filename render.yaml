@@ -18,7 +18,7 @@ services:
       - key: JWT_EXPIRES_IN
         value: 7d
       - key: CLIENT_URL
-        sync: false
+        value: https://zenpolio.vercel.app
       - key: IP_HASH_SECRET
         sync: false
       - key: CLOUDINARY_CLOUD_NAME
