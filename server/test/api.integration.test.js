@@ -249,6 +249,7 @@ test('appearance saves advanced background and cursor customization', async () =
       backgroundValue: 'https://images.example.com/background.webp',
       backgroundOpacity: 0.8,
       backgroundBlur: 12,
+      coverBlur: 9,
       backgroundPosition: 'top',
       overlayColor: '#111827',
       cursorStyle: 'ring',
@@ -258,6 +259,7 @@ test('appearance saves advanced background and cursor customization', async () =
     .expect(200);
 
   assert.equal(response.body.appearance.backgroundBlur, 12);
+  assert.equal(response.body.appearance.coverBlur, 9);
   assert.equal(response.body.appearance.backgroundPosition, 'top');
   assert.equal(response.body.appearance.overlayColor, '#111827');
   assert.equal(response.body.appearance.cursorStyle, 'ring');

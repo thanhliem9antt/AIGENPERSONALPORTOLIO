@@ -108,6 +108,7 @@ export const updateAppearance = asyncHandler(async (req, res) => {
     'backgroundValue',
     'backgroundOpacity',
     'backgroundBlur',
+    'coverBlur',
     'backgroundPosition',
     'overlayColor',
     'blurStrength',

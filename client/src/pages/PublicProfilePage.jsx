@@ -302,7 +302,7 @@ export default function PublicProfilePage() {
       )}
       <motion.section
         {...animation}
-        className={`relative z-10 mx-auto w-full max-w-3xl p-5 sm:p-8 ${
+        className={`relative z-10 mx-auto w-full max-w-3xl overflow-hidden p-5 sm:p-8 ${
           appearance.cardStyle === 'solid'
             ? 'border border-white/10 bg-[#111218] shadow-2xl'
             : appearance.cardStyle === 'minimal'
@@ -314,6 +314,25 @@ export default function PublicProfilePage() {
           backdropFilter: appearance.cardStyle === 'glass' ? `blur(${appearance.blurStrength ?? 18}px)` : undefined,
         }}
       >
+        <div
+          className="relative -mx-5 -mt-5 mb-16 h-36 overflow-hidden bg-gradient-to-br from-violet-500/40 via-zinc-900 to-cyan-500/30 sm:-mx-8 sm:-mt-8"
+          aria-label="Ảnh bìa profile"
+        >
+          {profile.backgroundUrl && (
+            <div
+              className="absolute inset-0 scale-105 bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${profile.backgroundUrl})`,
+                filter: `blur(${appearance.coverBlur || 0}px)`,
+              }}
+              aria-hidden="true"
+            />
+          )}
+          <div
+            className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"
+            aria-hidden="true"
+          />
+        </div>
         <header className="text-center">
           <div className="relative mx-auto h-28 w-28">
             <div className="h-full w-full overflow-hidden rounded-[2rem] border border-white/20 bg-gradient-to-br from-violet-300 to-zinc-800 shadow-xl">

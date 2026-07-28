@@ -137,6 +137,22 @@ export default function ProfilePreview({ profile = {}, user = {}, appearance = {
         style={{ background: appearance.overlayColor || '#08090c', opacity: 1 - (appearance.backgroundOpacity ?? 0.7) }}
       />
       <EffectPreview type={appearance.profileEffect} />
+      <div
+        className="absolute left-5 right-5 top-5 z-10 h-24 overflow-hidden rounded-2xl bg-gradient-to-br from-violet-500/40 via-zinc-900 to-cyan-500/30"
+        aria-label="Ảnh bìa profile"
+      >
+        {profile.backgroundUrl && (
+          <div
+            className="absolute inset-0 scale-105 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${profile.backgroundUrl})`,
+              filter: `blur(${appearance.coverBlur || 0}px)`,
+            }}
+            aria-hidden="true"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" aria-hidden="true" />
+      </div>
       {appearance.backgroundType === 'video' && (
         <span className="absolute left-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-[10px] text-zinc-300">
           <Play size={10} /> Video nền

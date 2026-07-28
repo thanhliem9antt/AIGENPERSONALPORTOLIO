@@ -115,7 +115,7 @@ export default function ProfileEditPage() {
             />
             <ImageUploader
               endpoint="/profile/background"
-              label="Đổi ảnh nền"
+              label="Đổi ảnh bìa"
               onUploaded={(p) => setForm({ ...form, ...p })}
             />
           </div>

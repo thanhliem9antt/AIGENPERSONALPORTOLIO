@@ -218,10 +218,21 @@ export default function AppearancePage() {
                 </div>
                 <ImageUploader
                   endpoint="/profile/background"
-                  label="Tải ảnh nền"
+                  label="Tải ảnh bìa"
                   onUploaded={(profile) => update('backgroundValue', profile.backgroundUrl)}
                 />
               </div>
+              <label className="text-sm text-zinc-300">
+                Độ mờ ảnh bìa: {form.coverBlur ?? 0}px
+                <input
+                  className="mt-3 w-full accent-violet-500"
+                  type="range"
+                  min="0"
+                  max="24"
+                  value={form.coverBlur ?? 0}
+                  onChange={set('coverBlur')}
+                />
+              </label>
             </div>
           )}
 
