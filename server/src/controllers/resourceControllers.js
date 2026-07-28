@@ -82,11 +82,22 @@ export const uploadThumbnail = asyncHandler(async (req, res) => {
 });
 
 export const getAppearance = asyncHandler(async (req, res) => {
-  const appearance = await Appearance.findOneAndUpdate(
-    { userId: req.user.id },
-    {},
-    { new: true, upsert: true, setDefaultsOnInsert: true },
-  );
+  let appearance = await Appearance.findOne({ userId: req.user.id });
+  if (!appearance) appearance = await Appearance.create({ userId: req.user.id });
+  const legacyDefaults = {
+    displayNameStyle: 'classic',
+    displayNameColor: '#ffffff',
+    displayNameGradient: 'linear-gradient(90deg,#c4b5fd,#f0abfc)',
+    profileEffect: 'none',
+  };
+  let changed = false;
+  Object.entries(legacyDefaults).forEach(([key, value]) => {
+    if (appearance[key] === undefined) {
+      appearance[key] = value;
+      changed = true;
+    }
+  });
+  if (changed) await appearance.save();
   res.json({ appearance });
 });
 

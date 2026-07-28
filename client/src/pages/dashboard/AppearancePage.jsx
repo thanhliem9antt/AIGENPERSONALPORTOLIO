@@ -111,7 +111,7 @@ export default function AppearancePage() {
     setBusy(true);
     try {
       const { data } = await api.put('/appearance', form);
-      setForm(data.appearance);
+      setForm({ ...form, ...data.appearance });
       notify('Đã lưu giao diện');
     } catch (requestError) {
       notify(requestError.response?.data?.message || 'Không thể lưu giao diện', 'error');
