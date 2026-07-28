@@ -264,3 +264,25 @@ test('appearance saves advanced background and cursor customization', async () =
   assert.equal(response.body.appearance.cursorColor, '#22d3ee');
   assert.equal(response.body.appearance.cursorSize, 28);
 });
+
+test('all cursor styles persist and are exposed on public profiles', async () => {
+  const registered = await request(app).post('/api/auth/register').send(credentials('all_cursors')).expect(201);
+  const cookie = authCookie(registered);
+  const cursorStyles = ['default', 'glow', 'dot', 'ring', 'crosshair', 'sparkle', 'block', 'heart'];
+
+  for (const cursorStyle of cursorStyles) {
+    const saved = await request(app)
+      .put('/api/appearance')
+      .set('Cookie', cookie)
+      .set('Origin', origin)
+      .send({ cursorStyle, cursorColor: '#22d3ee', cursorSize: 24 })
+      .expect(200);
+    assert.equal(saved.body.appearance.cursorStyle, cursorStyle);
+
+    const privateAppearance = await request(app).get('/api/appearance').set('Cookie', cookie).expect(200);
+    assert.equal(privateAppearance.body.appearance.cursorStyle, cursorStyle);
+
+    const publicProfile = await request(app).get('/api/profile/public/user_all_cursors').expect(200);
+    assert.equal(publicProfile.body.appearance.cursorStyle, cursorStyle);
+  }
+});
