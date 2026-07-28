@@ -138,7 +138,7 @@ export default function ProfilePreview({ profile = {}, user = {}, appearance = {
       />
       <EffectPreview type={appearance.profileEffect} />
       <div
-        className="absolute left-5 right-5 top-5 z-10 h-24 overflow-hidden rounded-2xl bg-gradient-to-br from-violet-500/40 via-zinc-900 to-cyan-500/30"
+        className="absolute left-5 right-5 top-5 z-10 h-32 overflow-hidden rounded-2xl bg-gradient-to-br from-violet-500/40 via-zinc-900 to-cyan-500/30"
         aria-label="Ảnh bìa profile"
       >
         {profile.backgroundUrl && (
@@ -146,6 +146,7 @@ export default function ProfilePreview({ profile = {}, user = {}, appearance = {
             className="absolute inset-0 scale-105 bg-cover bg-center"
             style={{
               backgroundImage: `url(${profile.backgroundUrl})`,
+              backgroundPosition: appearance.backgroundPosition || 'center',
               filter: `blur(${appearance.coverBlur || 0}px)`,
             }}
             aria-hidden="true"
@@ -161,7 +162,7 @@ export default function ProfilePreview({ profile = {}, user = {}, appearance = {
       <CursorPreview appearance={appearance} position={cursorPosition} />
 
       <div
-        className={`relative z-10 mt-20 border p-5 shadow-2xl backdrop-blur-xl ${cardClass}`}
+        className={`relative z-10 mt-28 border p-5 shadow-2xl backdrop-blur-xl ${cardClass}`}
         style={{
           borderRadius: appearance.borderRadius || 24,
           backdropFilter: appearance.cardStyle === 'glass' ? `blur(${appearance.blurStrength ?? 18}px)` : undefined,

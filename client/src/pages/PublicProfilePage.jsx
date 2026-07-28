@@ -315,7 +315,7 @@ export default function PublicProfilePage() {
         }}
       >
         <div
-          className="relative -mx-5 -mt-5 mb-16 h-36 overflow-hidden bg-gradient-to-br from-violet-500/40 via-zinc-900 to-cyan-500/30 sm:-mx-8 sm:-mt-8"
+          className="relative -mx-5 -mt-5 mb-0 h-56 overflow-hidden bg-gradient-to-br from-violet-500/40 via-zinc-900 to-cyan-500/30 sm:-mx-8 sm:-mt-8"
           aria-label="Ảnh bìa profile"
         >
           {profile.backgroundUrl && (
@@ -323,6 +323,7 @@ export default function PublicProfilePage() {
               className="absolute inset-0 scale-105 bg-cover bg-center"
               style={{
                 backgroundImage: `url(${profile.backgroundUrl})`,
+                backgroundPosition: appearance.backgroundPosition || 'center',
                 filter: `blur(${appearance.coverBlur || 0}px)`,
               }}
               aria-hidden="true"
@@ -334,7 +335,7 @@ export default function PublicProfilePage() {
           />
         </div>
         <header className="text-center">
-          <div className="relative mx-auto h-28 w-28">
+          <div className="relative z-20 mx-auto -mt-16 h-28 w-28">
             <div className="h-full w-full overflow-hidden rounded-[2rem] border border-white/20 bg-gradient-to-br from-violet-300 to-zinc-800 shadow-xl">
               {profile.avatarUrl && (
                 <img
