@@ -85,6 +85,11 @@ a {
   overflow: hidden;
   pointer-events: none;
 }
+.profile-effect-preview {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
 .profile-effect span {
   position: absolute;
   top: -12vh;

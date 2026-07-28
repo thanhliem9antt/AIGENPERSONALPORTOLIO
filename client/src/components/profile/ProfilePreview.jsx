@@ -42,6 +42,25 @@ function CursorPreview({ appearance }) {
   );
 }
 
+function EffectPreview({ type }) {
+  if (!type || type === 'none') return null;
+  return (
+    <div className={`profile-effect profile-effect-preview profile-effect-${type}`} aria-hidden="true">
+      {Array.from({ length: 18 }, (_, index) => (
+        <span
+          key={index}
+          style={{
+            left: `${((index * 47) % 103) - 2}%`,
+            animationDelay: `${(index % 7) * -1.2}s`,
+            animationDuration: `${7 + (index % 5)}s`,
+            '--effect-size': `${6 + (index % 4) * 3}px`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function displayNamePreviewStyle(appearance) {
   const style = appearance.displayNameStyle || 'classic';
   const color = appearance.displayNameColor || '#ffffff';
@@ -95,6 +114,7 @@ export default function ProfilePreview({ profile = {}, user = {}, appearance = {
         className="absolute inset-0"
         style={{ background: appearance.overlayColor || '#08090c', opacity: 1 - (appearance.backgroundOpacity ?? 0.7) }}
       />
+      <EffectPreview type={appearance.profileEffect} />
       {appearance.backgroundType === 'video' && (
         <span className="absolute left-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-[10px] text-zinc-300">
           <Play size={10} /> Video nền
