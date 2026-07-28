@@ -42,6 +42,26 @@ function CursorPreview({ appearance }) {
   );
 }
 
+function displayNamePreviewStyle(appearance) {
+  const style = appearance.displayNameStyle || 'classic';
+  const color = appearance.displayNameColor || '#ffffff';
+  const result = { color };
+  if (style === 'gradient') {
+    result.background = appearance.displayNameGradient || 'linear-gradient(90deg,#c4b5fd,#f0abfc)';
+    result.WebkitBackgroundClip = 'text';
+    result.WebkitTextFillColor = 'transparent';
+  }
+  if (style === 'neon') result.textShadow = `0 0 8px ${color}, 0 0 18px ${color}`;
+  if (style === 'outline') {
+    result.color = 'transparent';
+    result.WebkitTextStroke = `1px ${color}`;
+  }
+  if (style === 'serif' || style === 'elegant') result.fontFamily = 'Georgia, serif';
+  if (style === 'elegant') result.fontStyle = 'italic';
+  if (style === 'mono') result.fontFamily = 'ui-monospace, SFMono-Regular, monospace';
+  return result;
+}
+
 export default function ProfilePreview({ profile = {}, user = {}, appearance = {} }) {
   const cursorStyle =
     appearance.cursorStyle === 'default' && appearance.enableCursorEffect
@@ -92,7 +112,9 @@ export default function ProfilePreview({ profile = {}, user = {}, appearance = {
         <div className="-mt-14 mb-3 h-20 w-20 overflow-hidden rounded-2xl border-4 border-[#101116] bg-gradient-to-br from-violet-300 to-zinc-700">
           {profile.avatarUrl && <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" />}
         </div>
-        <h3 className="text-xl font-semibold">{profile.displayName || user.fullName || 'Tên của bạn'}</h3>
+        <h3 className="text-xl font-semibold" style={displayNamePreviewStyle(appearance)}>
+          {profile.displayName || user.fullName || 'Tên của bạn'}
+        </h3>
         <p className="text-sm text-zinc-500">@{user.username || 'username'}</p>
         <p className="mt-3 text-sm" style={{ color: appearance.primaryColor || '#a78bfa' }}>
           {profile.headline || 'Tiêu đề nghề nghiệp'}

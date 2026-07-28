@@ -30,6 +30,42 @@ const cursorOptions = [
   ['dot', 'Dot', 'Chấm tròn tối giản'],
   ['ring', 'Ring', 'Vòng tròn hiện đại'],
   ['crosshair', 'Crosshair', 'Dấu ngắm chính xác'],
+  ['sparkle', 'Sparkle', 'Tia sáng lấp lánh'],
+  ['block', 'Block', 'Khối pixel cá tính'],
+  ['heart', 'Heart', 'Trái tim nhỏ đáng yêu'],
+];
+
+const colorPresets = [
+  ['Tím', '#a78bfa'],
+  ['Hồng', '#f0abfc'],
+  ['Xanh', '#67e8f9'],
+  ['Lục', '#86efac'],
+  ['Vàng', '#fde68a'],
+  ['Cam', '#fdba74'],
+  ['Đỏ', '#fda4af'],
+  ['Trắng', '#ffffff'],
+];
+
+const displayNameStyles = [
+  ['classic', 'Cổ điển', 'Sạch, rõ và dễ đọc'],
+  ['gradient', 'Gradient', 'Chuyển màu nổi bật'],
+  ['neon', 'Neon', 'Phát sáng như biển hiệu'],
+  ['outline', 'Outline', 'Viền chữ hiện đại'],
+  ['serif', 'Serif', 'Thanh lịch, cổ điển'],
+  ['mono', 'Mono', 'Công nghệ, tối giản'],
+  ['elegant', 'Elegant', 'Nghiêng mềm, nghệ thuật'],
+];
+
+const profileEffects = [
+  ['none', 'Không hiệu ứng', 'Nền tĩnh, tối ưu nhất'],
+  ['snow', 'Tuyết rơi', 'Những bông tuyết trắng nhẹ nhàng'],
+  ['sakura', 'Hoa anh đào', 'Cánh hoa hồng bay trong gió'],
+  ['rain', 'Mưa', 'Mưa rơi tạo không khí điện ảnh'],
+  ['sunlight', 'Ánh nắng', 'Tia nắng ấm chuyển động chậm'],
+  ['leaves', 'Lá cây', 'Lá xanh và vàng rơi tự nhiên'],
+  ['stars', 'Bầu trời sao', 'Những ngôi sao lấp lánh'],
+  ['fireflies', 'Đom đóm', 'Đốm sáng bay dịu dàng'],
+  ['bubbles', 'Bong bóng', 'Bong bóng trong suốt nổi lên'],
 ];
 
 function SectionTitle({ icon: Icon, title, description }) {
@@ -261,6 +297,54 @@ export default function AppearancePage() {
             <option>Manrope</option>
             <option>Plus Jakarta Sans</option>
           </Select>
+          <div className="sm:col-span-2">
+            <span className="text-sm text-zinc-300">Phong cách tên hiển thị</span>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {displayNameStyles.map(([value, label, description]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => update('displayNameStyle', value)}
+                  className={`rounded-2xl border p-3 text-left transition ${
+                    (form.displayNameStyle || 'classic') === value
+                      ? 'border-violet-400/40 bg-violet-500/10'
+                      : 'border-white/10 bg-black/10 hover:border-white/20'
+                  }`}
+                >
+                  <span className="flex items-center justify-between text-sm font-medium">
+                    {label}
+                    {(form.displayNameStyle || 'classic') === value && <Check size={15} className="text-violet-300" />}
+                  </span>
+                  <span className="mt-1 block text-xs text-zinc-500">{description}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="sm:col-span-2">
+            <span className="text-sm text-zinc-300">Màu tên hiển thị</span>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {colorPresets.map(([label, value]) => (
+                <button
+                  key={value}
+                  type="button"
+                  title={label}
+                  aria-label={`Màu ${label}`}
+                  onClick={() => update('displayNameColor', value)}
+                  className={`h-9 w-9 rounded-full border-2 transition ${
+                    form.displayNameColor === value ? 'scale-110 border-white' : 'border-white/20'
+                  }`}
+                  style={{ background: value }}
+                />
+              ))}
+              <Field
+                label="Màu tùy chỉnh"
+                type="color"
+                className="h-9 w-12 p-1"
+                value={form.displayNameColor || '#ffffff'}
+                onChange={set('displayNameColor')}
+              />
+            </div>
+          </div>
           <label className="text-sm text-zinc-300">
             Blur card: {form.blurStrength}px
             <input
@@ -331,6 +415,29 @@ export default function AppearancePage() {
 
           <div className="my-1 border-t border-white/10 sm:col-span-2" />
           <SectionTitle icon={Sparkles} title="Hiệu ứng & âm thanh" />
+          <div className="sm:col-span-2">
+            <span className="text-sm text-zinc-300">Hiệu ứng khi khách xem profile</span>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {profileEffects.map(([value, label, description]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => update('profileEffect', value)}
+                  className={`rounded-2xl border p-3 text-left transition ${
+                    (form.profileEffect || 'none') === value
+                      ? 'border-violet-400/40 bg-violet-500/10'
+                      : 'border-white/10 bg-black/10 hover:border-white/20'
+                  }`}
+                >
+                  <span className="flex items-center justify-between text-sm font-medium">
+                    {label}
+                    {(form.profileEffect || 'none') === value && <Check size={15} className="text-violet-300" />}
+                  </span>
+                  <span className="mt-1 block text-xs text-zinc-500">{description}</span>
+                </button>
+              ))}
+            </div>
+          </div>
           <label className="text-sm text-zinc-300">
             Âm lượng: {Math.round(form.musicVolume * 100)}%
             <input

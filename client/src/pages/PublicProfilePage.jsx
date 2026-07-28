@@ -59,6 +59,52 @@ function GameCover({ game }) {
   );
 }
 
+function ProfileEffect({ type, reduceMotion }) {
+  if (!type || type === 'none' || reduceMotion) return null;
+  return (
+    <div className={`profile-effect profile-effect-${type}`} aria-hidden="true">
+      {Array.from({ length: 28 }, (_, index) => (
+        <span
+          key={index}
+          style={{
+            left: `${((index * 41) % 103) - 2}%`,
+            animationDelay: `${(index % 9) * -1.1}s`,
+            animationDuration: `${7 + (index % 7)}s`,
+            '--effect-size': `${8 + (index % 5) * 3}px`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function displayNameStyle(appearance) {
+  const style = appearance.displayNameStyle || 'classic';
+  const color = appearance.displayNameColor || '#ffffff';
+  const props = { color };
+  if (style === 'gradient') {
+    props.background = appearance.displayNameGradient || 'linear-gradient(90deg,#c4b5fd,#f0abfc)';
+    props.WebkitBackgroundClip = 'text';
+    props.WebkitTextFillColor = 'transparent';
+  }
+  if (style === 'neon') props.textShadow = `0 0 8px ${color}, 0 0 24px ${color}`;
+  if (style === 'outline') {
+    props.color = 'transparent';
+    props.WebkitTextStroke = `1px ${color}`;
+  }
+  if (style === 'serif') props.fontFamily = 'Georgia, serif';
+  if (style === 'mono') {
+    props.fontFamily = 'ui-monospace, SFMono-Regular, monospace';
+    props.letterSpacing = '0.04em';
+  }
+  if (style === 'elegant') {
+    props.fontFamily = 'Georgia, serif';
+    props.fontStyle = 'italic';
+    props.fontWeight = 500;
+  }
+  return props;
+}
+
 export default function PublicProfilePage() {
   const { profileHandle } = useParams();
   const username = profileHandle?.startsWith('@') ? profileHandle.slice(1) : profileHandle;
@@ -141,7 +187,9 @@ export default function PublicProfilePage() {
     appearance.cursorStyle === 'default' && appearance.enableCursorEffect
       ? 'glow'
       : appearance.cursorStyle || (appearance.enableCursorEffect ? 'glow' : 'default');
-  const customCursor = ['glow', 'dot', 'ring'].includes(effectiveCursor) && !reduceMotion;
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const customCursor =
+    ['glow', 'dot', 'ring', 'sparkle', 'block', 'heart'].includes(effectiveCursor) && !reduceMotion && finePointer;
   const cursorSize = appearance.cursorSize || 18;
   const cursorColor = appearance.cursorColor || appearance.primaryColor || '#a78bfa';
   const animation =
@@ -202,7 +250,8 @@ export default function PublicProfilePage() {
         }}
         aria-hidden="true"
       />
-      {appearance.enableParticles && !reduceMotion && (
+      <ProfileEffect type={appearance.profileEffect} reduceMotion={reduceMotion} />
+      {appearance.enableParticles && !reduceMotion && !appearance.profileEffect && (
         <div className="pointer-events-none fixed inset-0 z-[2] overflow-hidden" aria-hidden="true">
           {Array.from({ length: 18 }, (_, index) => (
             <span
@@ -220,11 +269,22 @@ export default function PublicProfilePage() {
       {customCursor && (
         <div
           className={`pointer-events-none fixed z-30 -translate-x-1/2 -translate-y-1/2 rounded-full ${
-            effectiveCursor === 'glow' ? 'opacity-40 blur-2xl' : effectiveCursor === 'ring' ? 'border-2' : ''
+            effectiveCursor === 'glow'
+              ? 'opacity-40 blur-2xl'
+              : effectiveCursor === 'ring'
+                ? 'border-2'
+                : effectiveCursor === 'sparkle'
+                  ? 'cursor-sparkle'
+                  : effectiveCursor === 'heart'
+                    ? 'cursor-heart'
+                    : effectiveCursor === 'block'
+                      ? 'cursor-block'
+                      : ''
           }`}
           style={{
             left: 'var(--cursor-x)',
             top: 'var(--cursor-y)',
+            '--cursor-color': cursorColor,
             width: effectiveCursor === 'glow' ? cursorSize * 8 : cursorSize,
             height: effectiveCursor === 'glow' ? cursorSize * 8 : cursorSize,
             background:
@@ -232,7 +292,9 @@ export default function PublicProfilePage() {
                 ? `radial-gradient(circle, ${cursorColor} 0%, transparent 70%)`
                 : effectiveCursor === 'ring'
                   ? 'transparent'
-                  : cursorColor,
+                  : effectiveCursor === 'block'
+                    ? cursorColor
+                    : cursorColor,
             borderColor: cursorColor,
           }}
           aria-hidden="true"
@@ -268,7 +330,9 @@ export default function PublicProfilePage() {
               title={profile.availabilityStatus}
             />
           </div>
-          <h1 className="mt-5 text-3xl font-semibold tracking-tight">{profile.displayName || user.fullName}</h1>
+          <h1 className="mt-5 text-3xl font-semibold tracking-tight" style={displayNameStyle(appearance)}>
+            {profile.displayName || user.fullName}
+          </h1>
           <p className="mt-1 text-sm text-zinc-400">@{user.username}</p>
           {(user.roles?.some((role) => role !== 'user') || user.titles?.length > 0) && (
             <div className="mt-3 flex flex-wrap justify-center gap-2">

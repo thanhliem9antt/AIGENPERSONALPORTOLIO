@@ -78,6 +78,146 @@ a {
   animation: profile-particle-rise linear infinite;
 }
 
+.profile-effect {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.profile-effect span {
+  position: absolute;
+  top: -12vh;
+  width: var(--effect-size);
+  height: var(--effect-size);
+  animation: profile-effect-fall linear infinite;
+}
+.profile-effect-snow span {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.65);
+}
+.profile-effect-sakura span {
+  border-radius: 70% 20% 70% 20%;
+  background: linear-gradient(135deg, #fbcfe8, #f472b6);
+  transform: rotate(35deg);
+}
+.profile-effect-rain span {
+  width: 1px;
+  height: calc(var(--effect-size) * 3);
+  background: linear-gradient(transparent, rgba(147, 197, 253, 0.65));
+  animation-name: profile-effect-rain;
+}
+.profile-effect-sunlight::before {
+  content: '';
+  position: absolute;
+  inset: -30%;
+  background: radial-gradient(ellipse at 15% 5%, rgba(253, 224, 71, 0.28), transparent 35%);
+  animation: profile-sunlight 12s ease-in-out infinite alternate;
+}
+.profile-effect-sunlight span {
+  display: none;
+}
+.profile-effect-leaves span {
+  border-radius: 80% 10% 80% 10%;
+  background: linear-gradient(135deg, #bef264, #a16207);
+  transform: rotate(35deg);
+}
+.profile-effect-stars span {
+  width: calc(var(--effect-size) / 2);
+  height: calc(var(--effect-size) / 2);
+  border-radius: 999px;
+  background: white;
+  box-shadow: 0 0 10px 2px rgba(191, 219, 254, 0.8);
+  animation-name: profile-twinkle;
+}
+.profile-effect-fireflies span {
+  width: calc(var(--effect-size) / 1.5);
+  height: calc(var(--effect-size) / 1.5);
+  border-radius: 999px;
+  background: #fde68a;
+  box-shadow: 0 0 14px 4px rgba(250, 204, 21, 0.65);
+  animation-name: profile-firefly;
+}
+.profile-effect-bubbles span {
+  border: 1px solid rgba(186, 230, 253, 0.65);
+  border-radius: 999px;
+  background: rgba(125, 211, 252, 0.08);
+  animation-name: profile-bubble;
+}
+.cursor-sparkle,
+.cursor-heart {
+  background: transparent !important;
+  border-radius: 0 !important;
+  filter: drop-shadow(0 0 5px var(--cursor-color, currentColor));
+}
+.cursor-block {
+  border-radius: 4px !important;
+  box-shadow:
+    0 0 0 1px currentColor,
+    0 0 10px currentColor;
+}
+.cursor-sparkle::after,
+.cursor-heart::after {
+  display: block;
+  font-size: 24px;
+  line-height: 1;
+  transform: translate(-3px, -3px);
+}
+.cursor-sparkle::after {
+  content: '✦';
+}
+.cursor-heart::after {
+  content: '♥';
+}
+
+@keyframes profile-effect-fall {
+  to {
+    transform: translate3d(80px, 115vh, 0) rotate(360deg);
+  }
+}
+@keyframes profile-effect-rain {
+  to {
+    transform: translate3d(-12vw, 120vh, 0);
+  }
+}
+@keyframes profile-sunlight {
+  from {
+    transform: translate3d(-3%, -2%, 0) rotate(-3deg);
+  }
+  to {
+    transform: translate3d(10%, 6%, 0) rotate(7deg);
+  }
+}
+@keyframes profile-twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+@keyframes profile-firefly {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: translate(0, 0);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(45px, 35px);
+  }
+}
+@keyframes profile-bubble {
+  to {
+    opacity: 0;
+    transform: translate3d(35px, -115vh, 0) scale(1.4);
+  }
+}
+
 @keyframes profile-particle-rise {
   from {
     transform: translate3d(0, 0, 0) scale(0.7);
